@@ -1,3 +1,23 @@
+local function deletemap()
+    while true do
+        local spawnPrefabs = workspace:FindFirstChild("spawnPrefabs")
+        if spawnPrefabs then
+            local wildIslands = spawnPrefabs:FindFirstChild("WildIslands")
+            if wildIslands then
+                for _, child in ipairs(wildIslands:GetChildren()) do
+                    if child.Name ~= "slime" then
+                        child:Destroy()
+                    end
+                end
+            end
+        end
+        task.wait(1)
+    end
+end
+
+spawn(deletemap)
+
+
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
