@@ -115,43 +115,7 @@ end
 local children = Players:GetPlayers()
 if #children == 1 then
 
-      if AttackSlimes then
-            task.wait(0.01)
-            local player = Players.LocalPlayer
-            local gui = player.PlayerGui
-            local closest = GetClosestSlime()
-            if closest then
-               
-                local args = {
-                    [1] = HttpService:GenerateGUID(false),
-                    [2] = {
-                        [1] = {
-                            ["hitUnit"] = closest,
-                            ["UiItXhnkf"] = "\7\240\159\164\163\240\159\164\161\7\n\7\n\7\nTwudhybaivliemzqrcNmf"
-                        }
-                    }
-                }
-                ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged["jiqEhnmoMV/ZlgessyomwyEX"]:FireServer(unpack(args))
-            end
-        end
-        wait(0.01)
-    end
-end
-spawn(SlimeRemote)
-
-local function autoclick()
-while true do
-if AttackSlimes then 
-
-local size = camera.ViewportSize
-                local center = Vector2.new(size.X / 2, size.Y / 2)
-                VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, true, game, 0)
-                VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, false, game, 0)
-end
-wait(0.3)
-end
-end
-spawn(autoclick)
+      
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
