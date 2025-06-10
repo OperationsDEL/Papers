@@ -116,18 +116,6 @@ local function autoclick()
 end
 
 spawn(autoclick)
-
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local function hasChestName(name)
-    return string.find(name:lower(), "chest") ~= nil
-end
-
-local children = Players:GetPlayers()
-if #children == 1 then
-end
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -209,9 +197,9 @@ local function TeleportToSlime()
             wait(10)
             local localPlayer = Players.LocalPlayer
             local otherPlayer
-            for _, player in ipairs(children) do
-                if player ~= localPlayer then
-                    otherPlayer = player
+            for _, p in ipairs(children) do
+                if p ~= localPlayer then
+                    otherPlayer = p
                     break
                 end
             end
@@ -222,7 +210,6 @@ local function TeleportToSlime()
                 if owners then
                     for _, val in ipairs(owners:GetChildren()) do
                         if val:IsA("NumberValue") and val.Value == otherUserId then
-                            print(island.Name)
                             local args = {
                                 [1] = {
                                     ["island"] = island,
@@ -234,43 +221,46 @@ local function TeleportToSlime()
                             if blocks then
                                 for _, block in ipairs(blocks:GetChildren()) do
                                     if hasChestName(block.Name) then
-                                        local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-                                        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+                                        local humanoidRootPart = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+                                        humanoidRootPart = humanoidRootPart:WaitForChild("HumanoidRootPart")
 
                                         repeat
+local args = {
+                                [1] = {
+                                    ["island"] = island,
+                                }
+                            }
+                            ReplicatedStorage.rbxts_include.node_modules:FindFirstChild("@rbxts").net.out._NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
+
                                             local distance = (humanoidRootPart.Position - block.Position).Magnitude
-                                            task.wait()
+                                            wait(1)
                                         until distance <= 200
 
                                         local backpack = localPlayer:FindFirstChild("Backpack")
                                         if backpack then
-                                            local found = true
-                                            repeat
-                                                found = false
-                                                for _, item in ipairs(backpack:GetChildren()) do
-                                                    if item.Name == "stickyGearGreen" or item.Name == "StickyGearBlue" or item.Name == "StickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" then
-                                                        found = true
-local Amount = 0
-if item.Amount.Value >= 1250 then
-    Amount = 1250
-elseif item.Amount.Value < 1250 then
-    Amount = item.Amount.Value
-end
-
-                                                      local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
-
-local remote = RemoteFolder.CLIENT_CHEST_TRANSACTION
-                                    remote:InvokeServer({
-                                        ["chest"] = block,
-                                        ["player_tracking_category"] = "join_from_web",
-                                        ["amount"] = Amount,
-                                        ["tool"] = item,
-                                        ["action"] = "deposit"
-                                    })
-                                                        task.wait(1)
+                                            local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+                                            for _, item in ipairs(backpack:GetChildren()) do
+                                                if item.Name == "stickyGearGreen" or item.Name == "StickyGearBlue" or item.Name == "StickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" then
+                                                    local Amount = 0
+                                                    if item:FindFirstChild("Amount") then
+                                                        if item.Amount.Value >= 1250 then
+                                                            Amount = 1250
+                                                        else
+                                                            Amount = item.Amount.Value
+                                                        end
                                                     end
+
+                                                    local remote = RemoteFolder.CLIENT_CHEST_TRANSACTION
+                                                    remote:InvokeServer({
+                                                        ["chest"] = block,
+                                                        ["player_tracking_category"] = "join_from_web",
+                                                        ["amount"] = Amount,
+                                                        ["tool"] = item,
+                                                        ["action"] = "deposit"
+                                                    })
+                                                    wait(0.1)
                                                 end
-                                            until not found
+                                            end
                                         end
                                     end
                                 end
@@ -287,9 +277,6 @@ local remote = RemoteFolder.CLIENT_CHEST_TRANSACTION
 end
 
 spawn(TeleportToSlime)
-
-
-
 
 
 local Players = game:GetService("Players")
