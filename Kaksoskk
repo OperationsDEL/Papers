@@ -1,7 +1,3 @@
-
-
-local Thisisautoslimesnigga = false
--- Services
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
@@ -9,33 +5,15 @@ local Players = game:GetService("Players")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local camera = workspace.CurrentCamera
 
--- Variables
-local localPlayer = Players.LocalPlayer
 local AttackSlimes = false
-local monitoringOtherPlayers = false
-local tweenReference = nil
 
--- Helper Functions
 local function GetTime(distance, speed)
     return distance / speed
 end
 
-local function CancelTweens()
-    if tweenReference then
-        tweenReference:Cancel()
-        tweenReference = nil
-    end
-    local hrp = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        local bv = hrp:FindFirstChild("AutoTPVelocity")
-        if bv then
-            bv:Destroy()
-        end
-    end
-end
-
 local function GetClosestSlime()
-    local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+    local player = Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     local closest = nil
     local shortestDist = math.huge
@@ -53,8 +31,82 @@ end
 
 local function FarmSlimes()
     while true do
-        if AttackSlimes then
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+        if #Players:GetPlayers() > 1 then
+            AttackSlimes = false
+            local player = Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local root = character:WaitForChild("HumanoidRootPart")
+            repeat wait() until not TweenService:GetPlayingTweens()[1]
+            local myUserId = player.UserId
+            for _, island in ipairs(workspace.Islands:GetChildren()) do
+                local owners = island:FindFirstChild("Owners")
+                if owners then
+                    for _, v in ipairs(owners:GetChildren()) do
+                        if v:IsA("NumberValue") and v.Value ~= myUserId then
+                            local islandChild = island.Name
+                            local args = {
+                                [1] = {
+                                    ["island"] = islandChild,
+                                }
+                            }
+                            ReplicatedStorage.rbxts_include.node_modules:FindFirstChild("@rbxts").net.out._NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
+                            wait(3)
+                            local found = false
+                            repeat
+                                local otherPlayer = nil
+                                for _, p in ipairs(Players:GetPlayers()) do
+                                    if p.UserId ~= myUserId then
+                                        otherPlayer = p
+                                        break
+                                    end
+                                end
+                                if otherPlayer then
+                                    local otherChar = otherPlayer.Character
+                                    if otherChar and otherChar:FindFirstChild("HumanoidRootPart") then
+                                        local dist = (root.Position - otherChar.HumanoidRootPart.Position).Magnitude
+                                        if dist <= 100 then
+                                            found = true
+                                        end
+                                    end
+                                end
+                                wait(1)
+                            until found
+                            repeat
+                                local Backpack = player:WaitForChild("Backpack")
+                                local item = nil
+                                for _, tool in ipairs(Backpack:GetChildren()) do
+                                    if tool.Name == "stickyGearGreen" or tool.Name == "StickyGearBlue" or tool.Name == "StickyGearPink" or tool.Name == "sheildAntler" or tool.Name == "hammerAntler" then
+                                        item = tool
+                                        break
+                                    end
+                                end
+                                if item then
+                                    local blocks = island:FindFirstChild("Blocks")
+                                    if blocks then
+                                        for _, block in ipairs(blocks:GetChildren()) do
+                                            if string.find(block.Name:lower(), "chest") then
+                                                local remote = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.client_request_35
+                                                remote:InvokeServer()
+                                                remote:InvokeServer({
+                                                    ["chest"] = block,
+                                                    ["player_tracking_category"] = "join_from_web",
+                                                    ["amount"] = 1,
+                                                    ["tool"] = item,
+                                                    ["action"] = "deposit"
+                                                })
+                                            end
+                                        end
+                                    end
+                                end
+                                wait(1)
+                            until not Backpack:FindFirstChild("stickyGearGreen") and not Backpack:FindFirstChild("StickyGearBlue") and not Backpack:FindFirstChild("StickyGearPink") and not Backpack:FindFirstChild("sheildAntler") and not Backpack:FindFirstChild("hammerAntler")
+                        end
+                    end
+                end
+            end
+        elseif AttackSlimes then
+            local player = Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
             local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
             local closest = GetClosestSlime()
             if closest then
@@ -69,11 +121,11 @@ local function FarmSlimes()
                 local distance = (humanoidRootPart.Position - destination).Magnitude
                 local speed = distance <= 8 and 9999999 or 30
                 local duration = GetTime(distance, speed)
-                tweenReference = TweenService:Create(humanoidRootPart, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = CFrame.new(destination)})
-                tweenReference:Play()
+                local tween = TweenService:Create(humanoidRootPart, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = CFrame.new(destination)})
+                tween:Play()
             end
         end
-        task.wait(0.01)
+        wait(0.01)
     end
 end
 spawn(FarmSlimes)
@@ -82,6 +134,8 @@ local function SlimeRemote()
     while true do
         if AttackSlimes then
             task.wait(0.01)
+            local player = Players.LocalPlayer
+            local gui = player.PlayerGui
             local closest = GetClosestSlime()
             if closest then
                 local args = {
@@ -96,12 +150,12 @@ local function SlimeRemote()
                 ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged["jiqEhnmoMV/ZlgessyomwyEX"]:FireServer(unpack(args))
             end
         end
-        task.wait(0.01)
+        wait(0.01)
     end
 end
 spawn(SlimeRemote)
 
-local function AutoClick()
+local function autoclick()
     while true do
         if AttackSlimes then
             local size = camera.ViewportSize
@@ -109,86 +163,79 @@ local function AutoClick()
             VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, true, game, 0)
             VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, false, game, 0)
         end
-        task.wait(0.3)
+        wait(0.3)
     end
 end
-spawn(AutoClick)
+spawn(autoclick)
 
-local function VisitOtherPlayerIslandIfExists()
+local function TeleportToSlime()
     while true do
-        if #Players:GetPlayers() > 1 and not monitoringOtherPlayers then
-            monitoringOtherPlayers = true
-            AttackSlimes = false
-            CancelTweens()
-
-            local myUserId = localPlayer.UserId
-            for _, island in ipairs(workspace.Islands:GetChildren()) do
-                local owners = island:FindFirstChild("Owners")
-                if owners then
-                    for _, owner in ipairs(owners:GetChildren()) do
-                        if owner:IsA("NumberValue") and owner.Value ~= myUserId then
-                            local args = {
-                                [1] = {
-                                    ["island"] = island
-                                }
-                            }
-                            ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
-
-                            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-                            local root = character:WaitForChild("HumanoidRootPart")
-
-                            repeat
-                                task.wait(3)
-                            until (root.Position - Players:GetPlayerByUserId(owner.Value).Character.HumanoidRootPart.Position).Magnitude <= 100
-
-                            repeat
-                                local backpack = localPlayer:WaitForChild("Backpack")
-                                local tool = nil
-                                for _, item in ipairs(backpack:GetChildren()) do
-                                    if table.find({"stickyGearGreen", "StickyGearBlue", "StickyGearPink", "sheildAntler", "hammerAntler"}, item.Name) then
-                                        tool = item
-                                        break
-                                    end
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local root = character:WaitForChild("HumanoidRootPart")
+        local foundPortal = false
+        for _, island in ipairs(workspace.Islands:GetChildren()) do
+            if island:IsA("Model") then
+                local blocks = island:FindFirstChild("Blocks")
+                if blocks and #blocks:GetChildren() > 0 then
+                    for _, block in ipairs(blocks:GetChildren()) do
+                        if block.Name == "portalToSpawn" then
+                            local part = block:FindFirstChild("Part")
+                            if part and part:IsA("BasePart") then
+                                local distance = (root.Position - part.Position).Magnitude
+                                if distance <= 1000 then
+                                    AttackSlimes = false
+                                    root.CFrame = part.CFrame
+                                    task.wait(3)
+                                    foundPortal = true
+                                    break
                                 end
-                                if not tool then break end
-
-                                local blocks = island:FindFirstChild("Blocks")
-                                if blocks then
-                                    for _, block in ipairs(blocks:GetChildren()) do
-                                        if string.find(block.Name:lower(), "chest") then
-                                            local remote = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.client_request_35
-                                            remote:InvokeServer({
-                                                ["chest"] = block,
-                                                ["player_tracking_category"] = "join_from_web",
-                                                ["amount"] = 1,
-                                                ["tool"] = tool,
-                                                ["action"] = "deposit"
-                                            })
-                                        end
-                                    end
-                                end
-                                task.wait(1)
-                            until #backpack:GetChildren() == 0
+                            end
                         end
                     end
                 end
             end
-        elseif #Players:GetPlayers() == 1 and monitoringOtherPlayers then
-            monitoringOtherPlayers = false
-            task.wait(2)
-            local root = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if root then
-                local pos1 = Vector3.new(148.12, 32.5, -739.05)
-                local pos2 = Vector3.new(700.10, 195, -216)
-                root.CFrame = CFrame.new((root.Position - pos1).Magnitude <= (root.Position - pos2).Magnitude and pos1 or pos2)
-                task.wait(2)
-                AttackSlimes = true
+            if foundPortal then break end
+        end
+        if not foundPortal then
+            local pos1 = Vector3.new(148.12, 32.5, -739.05)
+            local pos2 = Vector3.new(700.10, 195, -216)
+            local dist1 = (root.Position - pos1).Magnitude
+            local dist2 = (root.Position - pos2).Magnitude
+            if dist1 <= dist2 then
+                AttackSlimes = false
+                root.CFrame = CFrame.new(pos1)
+                task.wait(3)
+            else
+                repeat
+                    AttackSlimes = true
+                    wait()
+                    for _, island in ipairs(workspace.Islands:GetChildren()) do
+                        if island:IsA("Model") then
+                            local blocks = island:FindFirstChild("Blocks")
+                            if blocks and #blocks:GetChildren() > 0 then
+                                for _, block in ipairs(blocks:GetChildren()) do
+                                    if block.Name == "portalToSpawn" then
+                                        local part = block:FindFirstChild("Part")
+                                        if part and part:IsA("BasePart") then
+                                            local distance = (root.Position - part.Position).Magnitude
+                                            if distance <= 1000 then
+                                                return
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    local distToPos1 = (root.Position - Vector3.new(148.12, 32.5, -739.05)).Magnitude
+                until distToPos1 > (root.Position - pos2).Magnitude
             end
         end
-        task.wait(2)
+        wait(3)
     end
 end
-spawn(VisitOtherPlayerIslandIfExists)
+spawn(TeleportToSlime)
 
 
 
