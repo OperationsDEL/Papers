@@ -240,7 +240,7 @@ local args = {
                                         if backpack then
                                             local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
                                             for _, item in ipairs(backpack:GetChildren()) do
-                                                if item.Name == "stickyGearGreen" or item.Name == "StickyGearBlue" or item.Name == "StickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" then
+                                                if item.Name == "stickyGearGreen" or item.Name == "stickyGerBlue" or item.Name == "stickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" then
                                                     local Amount = 0
                                                     if item:FindFirstChild("Amount") then
                                                         if item.Amount.Value >= 1250 then
