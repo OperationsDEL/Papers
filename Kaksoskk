@@ -250,13 +250,20 @@ local function TeleportToSlime()
                                                 for _, item in ipairs(backpack:GetChildren()) do
                                                     if item.Name == "stickyGearGreen" or item.Name == "StickyGearBlue" or item.Name == "StickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" then
                                                         found = true
+local Amount = 0
+if item.Amount.Value >= 1250 then
+    Amount = 1250
+elseif item.Amount.Value < 1250 then
+    Amount = item.Amount.Value
+end
+
                                                       local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
 
 local remote = RemoteFolder.CLIENT_CHEST_TRANSACTION
                                     remote:InvokeServer({
                                         ["chest"] = block,
                                         ["player_tracking_category"] = "join_from_web",
-                                        ["amount"] = 9999,
+                                        ["amount"] = Amount,
                                         ["tool"] = item,
                                         ["action"] = "deposit"
                                     })
