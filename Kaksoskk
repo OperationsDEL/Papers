@@ -11,6 +11,24 @@ local FarmSlime = true
 local function GetTime(distance, speed)
     return distance / speed
 end
+local function autoDeleteBody()
+    while true do
+        if AttackSlimes == false then
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                local bv = root:FindFirstChild("AutoTPVelocity")
+                if bv then
+                    bv:Destroy()
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end
+
+spawn(autoDeleteBody)
 
 local function GetClosestSlime()
     local player = Players.LocalPlayer
