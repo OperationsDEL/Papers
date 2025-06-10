@@ -185,6 +185,7 @@ local function TeleportToSlime()
                     until distToPos1 > (root.Position - pos2).Magnitude
                 end
             end
+
         elseif #children == 2 then
             AttackSlimes = false
             wait(10)
@@ -203,6 +204,7 @@ local function TeleportToSlime()
                 if owners then
                     for _, val in ipairs(owners:GetChildren()) do
                         if val:IsA("NumberValue") and val.Value == otherUserId then
+                            print(island.Name)
                             local args = {
                                 [1] = {
                                     ["island"] = island,
@@ -252,10 +254,10 @@ local function TeleportToSlime()
                 end
             end
         end
+
         wait(3)
     end
 end
-
 spawn(TeleportToSlime)
 
 
