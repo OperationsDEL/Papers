@@ -437,8 +437,12 @@ local function SendWebhook()
 
         local webhooks = {
             ["3-6"] = "https://discord.com/api/webhooks/1380901650503438436/mJCDUILkmdqvNRvSSh7XiiEwPUEE4uqa7ON1U8jaf1ULN0d-_Ji-YRaGaw1QmBoqJDYn",
-            ["7-10"] = "https://discord.com/api/webhooks/1380901602919190569/Fi1ZcV4toKiXBEc5hPQeH7Aut32CDlxD7yumFDGpbjJAHF2uQZDWTHwwhuBAwg72C8kU"
-        }
+            ["7-10"] = "https://discord.com/api/webhooks/1382537440551505930/SdjqZapnH0x5NQeaYtdcVFD1kq4Ru0NwvEkDTLP6Ey3dSi1SSJ8Z1Somg_a8DrbXygQV",
+                   ["11-14"] = "https://discord.com/api/webhooks/1382537546705145856/kmHjfQZdAlsX9dZ-kGULncx90l9xIpdKiwNXBjv5TClnCb5_u5YPEE6kaqrF5l_Vxuuz",
+["15-18"] = "https://discord.com/api/webhooks/1382537679287226408/5UfrcQzjDB7v5HFfiSyq3-ByKTtf_PMJeQ4rWTua-JBwzT7-CUAGGXN7t0OQ6onPbRo5",
+["19-22"] = "https://discord.com/api/webhooks/1382538000667512962/cfdwYN69i_hZvPKBRjSRQDNaA1VgLSrlifeEZQOoSoDYEnwmUaiwJ6h3dYpdVpA549ml",
+
+}
 
         local function getWebhookForUsername(name)
             local number = tonumber(string.match(name, "%d+$"))
@@ -447,6 +451,14 @@ local function SendWebhook()
                     return webhooks["3-6"]
                 elseif number >= 7 and number <= 10 then
                     return webhooks["7-10"]
+elseif number >= 11 and number <= 14 then
+                    return webhooks["11-14"]
+elseif number >= 15 and number <= 18 then
+                    return webhooks["15-18"]
+elseif number >= 19 and number <= 22 then
+                    return webhooks["19-22"]
+
+
                 end
             end
             return nil
