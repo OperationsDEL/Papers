@@ -16,7 +16,46 @@ local function deletemap()
 end
 
 spawn(deletemap)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local Backpack = LocalPlayer:WaitForChild("Backpack")
+local NetManaged = ReplicatedStorage:WaitForChild("rbxts_include").node_modules["@rbxts"].net.out._NetManaged
 
+local function itemCheck()
+	while true do
+		task.wait(1)
+		for _, island in pairs(workspace:WaitForChild("Islands"):GetChildren()) do
+			if island:IsA("Model") and island:FindFirstChild("Blocks") then
+				for _, block in pairs(island.Blocks:GetChildren()) do
+					if block.Name == "dungeonChestOld" and block:FindFirstChild("Contents") then
+						local contents = block.Contents
+						local hasPancake = Backpack:FindFirstChild("pancakeFhanhorn")
+						local hasSushi = Backpack:FindFirstChild("sushiDragonRoll")
+
+						for _, item in pairs(contents:GetChildren()) do
+							if (item.Name == "pancakeFhanhorn" and not hasPancake) or (item.Name == "sushiDragonRoll" and not hasSushi) then
+								local args = {
+									[1] = {
+										["chest"] = block,
+										["player_tracking_category"] = "join_from_web",
+										["amount"] = item:FindFirstChild("Amount") and item.Amount.Value or 1,
+										["tool"] = item,
+										["action"] = "withdraw"
+									}
+								}
+								NetManaged.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
+								
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+task.spawn(itemCheck)
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -262,7 +301,7 @@ while true do
                                         repeat
                                             local found = false
                                             for _, item in ipairs(backpack:GetChildren()) do
-                                                if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" then
+                                                if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" or item.Name == "portalShardSlime" then
                                                     found = true
                                                     local Amount = 0
                                                     if item:FindFirstChild("Amount") then
