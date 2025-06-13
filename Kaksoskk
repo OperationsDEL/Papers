@@ -39,7 +39,7 @@ local function itemCheck()
 									[1] = {
 										["chest"] = block,
 										["player_tracking_category"] = "join_from_web",
-										["amount"] = item:FindFirstChild("Amount") and item.Amount.Value or 1,
+										["amount"] = 80,
 										["tool"] = item,
 										["action"] = "withdraw"
 									}
