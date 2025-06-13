@@ -89,6 +89,64 @@ end
 
 spawn(autoDeleteBody)
 
+local function autocollect()
+while true do
+if AttackSlimes == false then
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local Backpack = LocalPlayer:FindFirstChild("Backpack")
+local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+
+local function hasChestName(name)
+    return string.find(name:lower(), "chest") ~= nil
+end
+
+for _, island in ipairs(workspace.Islands:GetChildren()) do
+    local blocks = island:FindFirstChild("Blocks")
+    if blocks then
+        for _, block in ipairs(blocks:GetChildren()) do
+            if hasChestName(block.Name) and block:FindFirstChild("Contents") then
+                local contents = block.Contents
+
+                local hasPancake = Backpack:FindFirstChild("pancakeFhanhorn") ~= nil
+                local hasSushi = Backpack:FindFirstChild("sushiDragonRoll") ~= nil
+
+                if not hasPancake and contents:FindFirstChild("pancakeFhanhorn") then
+                    local args = {
+                        [1] = {
+                            ["chest"] = block,
+                            ["player_tracking_category"] = "join_from_web",
+                            ["amount"] = 80,
+                            ["tool"] = contents:FindFirstChild("pancakeFhanhorn"),
+                            ["action"] = "withdraw"
+                        }
+                    }
+                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
+                end
+
+                if not hasSushi and contents:FindFirstChild("sushiDragonRoll") then
+                    local args = {
+                        [1] = {
+                            ["chest"] = block,
+                            ["player_tracking_category"] = "join_from_web",
+                            ["amount"] = 80,
+                            ["tool"] = contents:FindFirstChild("sushiDragonRoll"),
+                            ["action"] = "withdraw"
+                        }
+                    }
+                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
+                end
+            end
+        end
+    end
+end
+end
+wait(3)
+end
+end
+spawn(autocollect)
+
 local function GetClosestSlime()
     local player = Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
