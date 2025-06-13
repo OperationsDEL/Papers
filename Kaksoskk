@@ -43,7 +43,7 @@ local function itemCheck()
 									[1] = {
 										["chest"] = block,
 										["player_tracking_category"] = "join_from_web",
-										["amount"] = 80,
+										["amount"] = 60,
 										["tool"] = item,
 										["action"] = "withdraw"
 									}
