@@ -321,7 +321,31 @@ while true do
                                                         ["action"] = "deposit"
                                                     })
                                                     task.wait(0.1)
-                                                    
+                                                end
+                                            end
+
+                                            if not found then
+                                                for _, item in ipairs(backpack:GetChildren()) do
+                                                    if item.Name == "pancakeFhanhorn" or item.Name == "sushiDragonRoll" then
+                                                        local contents = block:FindFirstChild("Contents")
+                                                        if contents then
+                                                            for _, content in ipairs(contents:GetChildren()) do
+                                                                if content.Name == item.Name then
+                                                                    local args = {
+                                                                        [1] = {
+                                                                            ["chest"] = block,
+                                                                            ["player_tracking_category"] = "join_from_web",
+                                                                            ["amount"] = 80,
+                                                                            ["tool"] = item,
+                                                                            ["action"] = "withdraw"
+                                                                        }
+                                                                    }
+                                                                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
+                                                                    task.wait(0.1)
+                                                                end
+                                                            end
+                                                        end
+                                                    end
                                                 end
                                             end
                                         until not found
@@ -337,9 +361,11 @@ while true do
     end
 
     task.wait(3)
-    end
 end
+end
+
 spawn(TeleportToSlime)
+
 
 
 
