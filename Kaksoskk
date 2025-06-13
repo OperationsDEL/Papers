@@ -28,7 +28,7 @@ end
 
 local function itemCheck()
 	while true do
-		task.wait(1)
+		task.wait(5)
 		for _, island in pairs(workspace:WaitForChild("Islands"):GetChildren()) do
 			if island:IsA("Model") and island:FindFirstChild("Blocks") then
 				for _, block in pairs(island.Blocks:GetChildren()) do
@@ -336,17 +336,8 @@ while true do
                                                         if contents then
                                                             for _, content in ipairs(contents:GetChildren()) do
                                                                 if content.Name == item.Name then
-                                                                    local args = {
-                                                                        [1] = {
-                                                                            ["chest"] = block,
-                                                                            ["player_tracking_category"] = "join_from_web",
-                                                                            ["amount"] = 80,
-                                                                            ["tool"] = item,
-                                                                            ["action"] = "withdraw"
-                                                                        }
-                                                                    }
-                                                                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
-                                                                    task.wait(0.1)
+                                                                 print("bugged")
+task.wait(0.1)
                                                                 end
                                                             end
                                                         end
