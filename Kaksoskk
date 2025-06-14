@@ -468,11 +468,11 @@ spawn(function()
 		local bp = LocalPlayer:FindFirstChild("Backpack")
 		local item = bp and bp:FindFirstChild("stickyGearGreen")
 		if not item then
-			task.wait(30)
+			task.wait(380)
 			if not (bp:FindFirstChild("stickyGearGreen")) then send() end
 		else
 			local old = item:FindFirstChild("Amount") and item.Amount.Value or 0
-			task.wait(30)
+			task.wait(380)
 			local new = item:FindFirstChild("Amount") and item.Amount.Value or 0
 			if old == new then send() end
 		end
