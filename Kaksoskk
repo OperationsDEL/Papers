@@ -16,49 +16,6 @@ local function deletemap()
 end
 
 spawn(deletemap)
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local LocalPlayer = Players.LocalPlayer
-local Backpack = LocalPlayer:WaitForChild("Backpack")
-local NetManaged = ReplicatedStorage:WaitForChild("rbxts_include").node_modules["@rbxts"].net.out._NetManaged
-
-local function hasChestInName(name)
-	return string.find(name:lower(), "chest") ~= nil
-end
-
-local function itemCheck()
-	while true do
-		task.wait(5)
-		for _, island in pairs(workspace:WaitForChild("Islands"):GetChildren()) do
-			if island:IsA("Model") and island:FindFirstChild("Blocks") then
-				for _, block in pairs(island.Blocks:GetChildren()) do
-					if hasChestInName(block.Name) and block:FindFirstChild("Contents") then
-						local contents = block.Contents
-						local hasPancake = Backpack:FindFirstChild("pancakeFhanhorn")
-						local hasSushi = Backpack:FindFirstChild("sushiDragonRoll")
-
-						for _, item in pairs(contents:GetChildren()) do
-							if (item.Name == "pancakeFhanhorn" and not hasPancake) or (item.Name == "sushiDragonRoll" and not hasSushi) then
-								local args = {
-									[1] = {
-										["chest"] = block,
-										["player_tracking_category"] = "join_from_web",
-										["amount"] = 60,
-										["tool"] = item,
-										["action"] = "withdraw"
-									}
-								}
-								NetManaged.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
-							end
-						end
-					end
-				end
-			end
-		end
-	end
-end
-
-spawn(itemCheck)
 
 
 local TweenService = game:GetService("TweenService")
@@ -306,7 +263,7 @@ while true do
                                         repeat
                                             local found = false
                                             for _, item in ipairs(backpack:GetChildren()) do
-                                                if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "hammerAntler" or item.Name == "sheildAntler" or item.Name == "portalShardSlime" then
+                                                if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "antlerHammer" or item.Name == "sheildAntler" or item.Name == "portalShardSlime" then
                                                     found = true
                                                     local Amount = 0
                                                     if item:FindFirstChild("Amount") then
@@ -336,8 +293,17 @@ while true do
                                                         if contents then
                                                             for _, content in ipairs(contents:GetChildren()) do
                                                                 if content.Name == item.Name then
-                                                                 print("bugged")
-task.wait(0.1)
+                                                                    local args = {
+                                                                        [1] = {
+                                                                            ["chest"] = block,
+                                                                            ["player_tracking_category"] = "join_from_web",
+                                                                            ["amount"] = 80,
+                                                                            ["tool"] = item,
+                                                                            ["action"] = "withdraw"
+                                                                        }
+                                                                    }
+                                                                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
+                                                                    task.wait(0.1)
                                                                 end
                                                             end
                                                         end
