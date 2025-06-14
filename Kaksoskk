@@ -214,7 +214,7 @@ while true do
 
     elseif #children == 2 then
         AttackSlimes = false
-        task.wait(10)
+        task.wait(3)
         local localPlayer = Players.LocalPlayer
         local otherPlayer
         for _, p in ipairs(children) do
@@ -260,83 +260,55 @@ while true do
                                     if backpack then
                                         local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
 
-                                        repeat
-                                            local found = false
+                                        local found = false
+                                        for _, item in ipairs(backpack:GetChildren()) do
+                                            if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "antlerHammer" or item.Name == "sheildAntler" or item.Name == "portalShardSlime" then
+                                                found = true
+                                                local Amount = 0
+                                                if item:FindFirstChild("Amount") then
+                                                    if item.Amount.Value >= 1250 then
+                                                        Amount = 1250
+                                                    else
+                                                        Amount = item.Amount.Value
+                                                    end
+                                                end
+
+                                                local remote = RemoteFolder.CLIENT_CHEST_TRANSACTION
+                                                remote:InvokeServer({
+                                                    ["chest"] = block,
+                                                    ["player_tracking_category"] = "join_from_web",
+                                                    ["amount"] = Amount,
+                                                    ["tool"] = item,
+                                                    ["action"] = "deposit"
+                                                })
+                                                task.wait(0.1)
+                                            end
+                                        end
+
+                                        if not found then
                                             for _, item in ipairs(backpack:GetChildren()) do
-                                                if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "antlerHammer" or item.Name == "sheildAntler" or item.Name == "portalShardSlime" then
-                                                    found = true
-                                                    local Amount = 0
-                                                    if item:FindFirstChild("Amount") then
-                                                        if item.Amount.Value >= 1250 then
-                                                            Amount = 1250
-                                                        else
-                                                            Amount = item.Amount.Value
-                                                        end
-                                                    end
-
-                                                    local remote = RemoteFolder.CLIENT_CHEST_TRANSACTION
-                                                    remote:InvokeServer({
-                                                        ["chest"] = block,
-                                                        ["player_tracking_category"] = "join_from_web",
-                                                        ["amount"] = Amount,
-                                                        ["tool"] = item,
-                                                        ["action"] = "deposit"
-                                                    })
-                                                    task.wait(0.1)
-                                                end
-                                            end
-
-                                            if not found then
-                                                local hasPancake = false
-                                                local hasDragon = false
-                                                for _, item in ipairs(backpack:GetChildren()) do
-                                                    if item.Name == "pancakeFhanhorn" then
-                                                        hasPancake = true
-                                                    elseif item.Name == "sushiDragonRoll" then
-                                                        hasDragon = true
-                                                    end
-                                                end
-
-                                                local contents = block:FindFirstChild("Contents")
-                                                if contents then
-                                                    for _, content in ipairs(contents:GetChildren()) do
-                                                        if content.Name == "pancakeFhanhorn" and not hasPancake then
-                                                            for _, item in ipairs(backpack:GetChildren()) do
-                                                                if item.Name == "pancakeFhanhorn" then
-                                                                    local args = {
-                                                                        [1] = {
-                                                                            ["chest"] = block,
-                                                                            ["player_tracking_category"] = "join_from_web",
-                                                                            ["amount"] = 80,
-                                                                            ["tool"] = item,
-                                                                            ["action"] = "withdraw"
-                                                                        }
+                                                if item.Name == "pancakeFhanhorn" or item.Name == "sushiDragonRoll" then
+                                                    local contents = block:FindFirstChild("Contents")
+                                                    if contents then
+                                                        for _, content in ipairs(contents:GetChildren()) do
+                                                            if content.Name == item.Name then
+                                                                local args = {
+                                                                    [1] = {
+                                                                        ["chest"] = block,
+                                                                        ["player_tracking_category"] = "join_from_web",
+                                                                        ["amount"] = 80,
+                                                                        ["tool"] = item,
+                                                                        ["action"] = "withdraw"
                                                                     }
-                                                                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
-                                                                    task.wait(0.1)
-                                                                end
-                                                            end
-                                                        elseif content.Name == "sushiDragonRoll" and not hasDragon then
-                                                            for _, item in ipairs(backpack:GetChildren()) do
-                                                                if item.Name == "sushiDragonRoll" then
-                                                                    local args = {
-                                                                        [1] = {
-                                                                            ["chest"] = block,
-                                                                            ["player_tracking_category"] = "join_from_web",
-                                                                            ["amount"] = 80,
-                                                                            ["tool"] = item,
-                                                                            ["action"] = "withdraw"
-                                                                        }
-                                                                    }
-                                                                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
-                                                                    task.wait(0.1)
-                                                                end
+                                                                }
+                                                                RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
+                                                                task.wait(0.1)
                                                             end
                                                         end
                                                     end
                                                 end
                                             end
-                                        until not found
+                                        end
                                     end
                                 end
                             end
@@ -353,6 +325,7 @@ end
 end
 
 spawn(TeleportToSlime)
+
 
 
 
