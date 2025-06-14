@@ -287,12 +287,38 @@ while true do
                                             end
 
                                             if not found then
+                                                local hasPancake = false
+                                                local hasDragon = false
                                                 for _, item in ipairs(backpack:GetChildren()) do
-                                                    if item.Name == "pancakeFhanhorn" or item.Name == "sushiDragonRoll" then
-                                                        local contents = block:FindFirstChild("Contents")
-                                                        if contents then
-                                                            for _, content in ipairs(contents:GetChildren()) do
-                                                                if content.Name == item.Name then
+                                                    if item.Name == "pancakeFhanhorn" then
+                                                        hasPancake = true
+                                                    elseif item.Name == "sushiDragonRoll" then
+                                                        hasDragon = true
+                                                    end
+                                                end
+
+                                                local contents = block:FindFirstChild("Contents")
+                                                if contents then
+                                                    for _, content in ipairs(contents:GetChildren()) do
+                                                        if content.Name == "pancakeFhanhorn" and not hasPancake then
+                                                            for _, item in ipairs(backpack:GetChildren()) do
+                                                                if item.Name == "pancakeFhanhorn" then
+                                                                    local args = {
+                                                                        [1] = {
+                                                                            ["chest"] = block,
+                                                                            ["player_tracking_category"] = "join_from_web",
+                                                                            ["amount"] = 80,
+                                                                            ["tool"] = item,
+                                                                            ["action"] = "withdraw"
+                                                                        }
+                                                                    }
+                                                                    RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer(unpack(args))
+                                                                    task.wait(0.1)
+                                                                end
+                                                            end
+                                                        elseif content.Name == "sushiDragonRoll" and not hasDragon then
+                                                            for _, item in ipairs(backpack:GetChildren()) do
+                                                                if item.Name == "sushiDragonRoll" then
                                                                     local args = {
                                                                         [1] = {
                                                                             ["chest"] = block,
