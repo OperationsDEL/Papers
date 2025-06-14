@@ -320,7 +320,7 @@ while true do
 
                                         local found = false
                                         for _, item in ipairs(backpack:GetChildren()) do
-                                            if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "antlerHammer" or item.Name == "sheildAntler" or item.Name == "portalShardSlime" then
+                                            if item.Name == "stickyGearGreen" or item.Name == "stickyGearBlue" or item.Name == "stickyGearPink" or item.Name == "antlerHammer" or item.Name == "shieldAntler" or item.Name == "portalShardSlime" then
                                                 found = true
                                                 local Amount = 0
                                                 if item:FindFirstChild("Amount") then
