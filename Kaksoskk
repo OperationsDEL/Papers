@@ -16,53 +16,28 @@ local function deletemap()
 end
 
 spawn(deletemap)
-
 local function withdrawitems()
     while true do
         local player = game:GetService("Players").LocalPlayer
-        local backpack = player:FindFirstChild("Backpack")
         local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
 
-        local hasPancake = backpack:FindFirstChild("pancakeFhanhorn") ~= nil
-        local hasSushi = backpack:FindFirstChild("sushiDragonRoll") ~= nil
+        for _, island in ipairs(workspace.Islands:GetChildren()) do
+            local blocks = island:FindFirstChild("Blocks")
+            if blocks then
+                for _, block in ipairs(blocks:GetChildren()) do
+                    if string.find(block.Name, "chest") and block:FindFirstChild("Contents") then
+                        local contents = block.Contents
 
-        if not hasPancake or not hasSushi then
-            for _, island in ipairs(workspace.Islands:GetChildren()) do
-                local blocks = island:FindFirstChild("Blocks")
-                if blocks then
-                    for _, block in ipairs(blocks:GetChildren()) do
-                        if string.find(block.Name, "chest") and block:FindFirstChild("Contents") then
-                            local contents = block.Contents
-
-                            if not hasPancake then
-                                for _, content in ipairs(contents:GetChildren()) do
-                                    if content.Name == "pancakeFhanhorn" then
-                                        RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
-                                            ["chest"] = block,
-                                            ["player_tracking_category"] = "join_from_web",
-                                            ["amount"] = 60,
-                                            ["tool"] = content,
-                                            ["action"] = "withdraw"
-                                        })
-                                        
-                                    end
-                                end
-                            end
-
-                            if not hasSushi then
-                                for _, content in ipairs(contents:GetChildren()) do
-                                    if content.Name == "sushiDragonRoll" then
-                                        RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
-                                            ["chest"] = block,
-                                            ["player_tracking_category"] = "join_from_web",
-                                            ["amount"] = 60,
-                                            ["tool"] = content,
-                                            ["action"] = "withdraw"
-                                        })
-                                        
-                                    end
-                                end
+                        for _, content in ipairs(contents:GetChildren()) do
+                            if content.Name == "pancakeFhanhorn" or content.Name == "sushiDragonRoll" then
+                                RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
+                                    ["chest"] = block,
+                                    ["player_tracking_category"] = "join_from_web",
+                                    ["amount"] = 60,
+                                    ["tool"] = content,
+                                    ["action"] = "withdraw"
+                                })
                             end
                         end
                     end
@@ -75,6 +50,7 @@ local function withdrawitems()
 end
 
 spawn(withdrawitems)
+
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
