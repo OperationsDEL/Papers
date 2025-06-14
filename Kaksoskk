@@ -45,7 +45,7 @@ local function withdrawitems()
                                             ["tool"] = content,
                                             ["action"] = "withdraw"
                                         })
-                                        break
+                                        
                                     end
                                 end
                             end
@@ -60,7 +60,7 @@ local function withdrawitems()
                                             ["tool"] = content,
                                             ["action"] = "withdraw"
                                         })
-                                        break
+                                        
                                     end
                                 end
                             end
