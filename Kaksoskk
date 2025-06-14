@@ -41,7 +41,7 @@ local function withdrawitems()
                                         RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
                                             ["chest"] = block,
                                             ["player_tracking_category"] = "join_from_web",
-                                            ["amount"] = 80,
+                                            ["amount"] = 60,
                                             ["tool"] = content,
                                             ["action"] = "withdraw"
                                         })
@@ -56,7 +56,7 @@ local function withdrawitems()
                                         RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
                                             ["chest"] = block,
                                             ["player_tracking_category"] = "join_from_web",
-                                            ["amount"] = 80,
+                                            ["amount"] = 60,
                                             ["tool"] = content,
                                             ["action"] = "withdraw"
                                         })
