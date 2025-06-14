@@ -448,6 +448,37 @@ local function TimerRun()
 end
 spawn(TimerRun)
 
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local LocalPlayer = Players.LocalPlayer
+local WebhookURL = "https://discord.com/api/webhooks/1380901650503438436/mJCDUILkmdqvNRvSSh7XiiEwPUEE4uqa7ON1U8jaf1ULN0d-_Ji-YRaGaw1QmBoqJDYn"
+local requestFunction = (syn and syn.request) or request or (http and http.request) or http_request
+
+local function send()
+	requestFunction({
+		Url = WebhookURL,
+		Method = "POST",
+		Headers = {["Content-Type"] = "application/json"},
+		Body = HttpService:JSONEncode({content = "<@1156400195072950355> Player : " .. LocalPlayer.Name .. " , is stuck, fix please"})
+	})
+end
+
+spawn(function()
+	while true do
+		local bp = LocalPlayer:FindFirstChild("Backpack")
+		local item = bp and bp:FindFirstChild("stickyGearGreen")
+		if not item then
+			task.wait(30)
+			if not (bp:FindFirstChild("stickyGearGreen")) then send() end
+		else
+			local old = item:FindFirstChild("Amount") and item.Amount.Value or 0
+			task.wait(30)
+			local new = item:FindFirstChild("Amount") and item.Amount.Value or 0
+			if old == new then send() end
+		end
+		task.wait(5)
+	end
+end)
 
 local function SendWebhook()
     while true do
