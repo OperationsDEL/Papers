@@ -46,7 +46,7 @@ local function TweenToRock(target)
         bv.Parent = humanoidRootPart
     end
     local distance = (humanoidRootPart.Position - destination).Magnitude
-    local speed = distance <= 8 and 9999999 or 30
+    local speed = distance <= 8 and 9999999 or 25
     local duration = distance / speed
     local tween = TweenService:Create(humanoidRootPart, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = CFrame.new(destination)})
     tween:Play()
