@@ -15,7 +15,7 @@ local function withdrawitems()
                         local contents = block.Contents
 
                         for _, content in ipairs(contents:GetChildren()) do
-                            if content.Name == "pancakeFhanhorn" or content.Name == "sushiDragonRoll" then
+                            if content.Name == "eggDeviled" then
                                 RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
                                     ["chest"] = block,
                                     ["player_tracking_category"] = "join_from_web",
@@ -130,7 +130,6 @@ local function hasChestName(name)
     return string.find(lower, "chest") and string.find(lower, "diamond")
 end
 
-
 local function TeleportToSlime()
     while true do
         local allPlayers = Players:GetPlayers()
@@ -224,13 +223,16 @@ local function TeleportToSlime()
                                                 task.wait(1)
                                             until (root.Position - block.Position).Magnitude <= 200
 
-                                            local backpack = localPlayer:FindFirstChild("Backpack")
-                                            if backpack then
-                                                local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+                                            local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+
+                                            repeat
+                                                local backpack = localPlayer:FindFirstChild("Backpack")
+                                                local found = false
 
                                                 for _, item in ipairs(backpack:GetChildren()) do
                                                     local lowerName = item.Name:lower()
                                                     if string.find(lowerName, "diamond") or string.find(lowerName, "cry") then
+                                                        found = true
                                                         local amount = 0
                                                         if item:FindFirstChild("Amount") then
                                                             amount = math.min(item.Amount.Value, 1250)
@@ -246,7 +248,7 @@ local function TeleportToSlime()
                                                         task.wait(0.1)
                                                     end
                                                 end
-                                            end
+                                            until not found
                                         end
                                     end
                                 end
@@ -266,12 +268,12 @@ spawn(TeleportToSlime)
 
 
 
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
 
 local function IsActive(imageId)
-    local potionList = Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PotionList")
+    local potionList = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PotionList")
     for _, child in ipairs(potionList:GetChildren()) do
         if child:IsA("Frame") then
             for _, subChild in ipairs(child:GetChildren()) do
@@ -290,43 +292,42 @@ end
 
 local function EquipTool(toolName)
     for i = 0, 7 do
-        if Players.LocalPlayer.Character:FindFirstChild(toolName) then break end
-        Players.LocalPlayer.ClientHotbarIndex.Value = i
-        wait()
+        if LocalPlayer.Character:FindFirstChild(toolName) then break end
+        LocalPlayer.ClientHotbarIndex.Value = i
+        task.wait()
     end
 end
 
 local function AutoEquipTool()
-    local LocalPlayer = Players.LocalPlayer
-
     while true do
-        local potionActive = IsActive("rbxassetid://7981378333")
-
-        if potionActive then
-            repeat EquipTool("voidMattock") wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
-
-            for _, child in ipairs(workspace:GetChildren()) do
-                if child.Name == LocalPlayer.Name then
-                    local deviled = child:FindFirstChild("eggDeviled")
-                    if deviled then
-                        local args = {["tool"] = deviled}
-                        ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_EAT_FOOD:InvokeServer(args)
-                    end
-                end
-            end
+        if IsActive("rbxassetid://7981378333") then
+            repeat EquipTool("voidMattock") task.wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
         else
-            repeat EquipTool("voidMattock") wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
-        end
+            local backpack = LocalPlayer:FindFirstChild("Backpack")
+            if backpack and backpack:FindFirstChild("eggDeviled") then
+                repeat EquipTool("eggDeviled") task.wait() until LocalPlayer.Character:FindFirstChild("eggDeviled")
 
-        wait(1)
+                repeat
+                    for _, child in ipairs(workspace:GetChildren()) do
+                        if child.Name == LocalPlayer.Name then
+                            local deviled = child:FindFirstChild("eggDeviled")
+                            if deviled then
+                                ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_EAT_FOOD:InvokeServer({
+                                    ["tool"] = deviled
+                                })
+                                break
+                            end
+                        end
+                    end
+                    task.wait()
+                until false
+            end
+        end
+        task.wait(1)
     end
 end
 
 spawn(AutoEquipTool)
-
-
-
-
 
 
 local timer = 0
@@ -346,49 +347,50 @@ local function SendWebhook()
         local webhookUrl = "https://discord.com/api/webhooks/1233196606401019975/qIxgbxZsF4dwVkMkDNB_Ei-p7zWhGwQ4DoPlgraHwJOkhUedOaDH6PYLDeXtNElNOF4x"
         local requestFunction = (syn and syn.request) or request or (http and http.request) or http_request
 
-        local green, blue, pink = 0, 0, 0
-        local pancake, dragonroll, shieldantler, hammerantler = 0, 0, 0, 0
+        local diamondItems = {}
+        local cryItems = {}
 
         for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-            if item.Name == "stickyGearGreen" and item:FindFirstChild("Amount") then
-                green = item.Amount.Value
-            elseif item.Name == "stickyGearBlue" and item:FindFirstChild("Amount") then
-                blue = item.Amount.Value
-            elseif item.Name == "stickyGearPink" and item:FindFirstChild("Amount") then
-                pink = item.Amount.Value
-            elseif item.Name == "pancakeFhanhorn" and item:FindFirstChild("Amount") then
-                pancake = item.Amount.Value
-            elseif item.Name == "sushiDragonRoll" and item:FindFirstChild("Amount") then
-                dragonroll = item.Amount.Value
-            elseif item.Name == "shieldAntler" and item:FindFirstChild("Amount") then
-                shieldantler = item.Amount.Value
-            elseif item.Name == "antlerHammer" and item:FindFirstChild("Amount") then
-                hammerantler = item.Amount.Value
+            local nameLower = item.Name:lower()
+            if (string.find(nameLower, "diamond") or string.find(nameLower, "cry")) and item:FindFirstChild("Amount") then
+                local entry = item.Name .. ": " .. item.Amount.Value
+                if string.find(nameLower, "diamond") then
+                    table.insert(diamondItems, entry)
+                elseif string.find(nameLower, "cry") then
+                    table.insert(cryItems, entry)
+                end
             end
         end
 
-        local data = {
-            ["content"] = LocalPlayer.Name .. " DATA :\n" ..
-                "Sticky Green Gears : " .. green .. "\n" ..
-                "Sticky Blue Gears : " .. blue .. "\n" ..
-                "Sticky Pink Gears : " .. pink .. "\n" ..
-                "Pancakes : " .. pancake .. "\n" ..
-                "Dragon Roll : " .. dragonroll .. "\n" ..
-                "Shield Antler : " .. shieldantler .. "\n" ..
-                "Hammer Antler : " .. hammerantler .. "\n" ..
-                "Server Active : " .. timer
-        }
+        if #diamondItems > 0 or #cryItems > 0 then
+            local message = "Player : " .. LocalPlayer.Name
+            if #diamondItems > 0 then
+                message = message .. " | " .. table.concat(diamondItems, " | ")
+            end
+            if #cryItems > 0 then
+                message = message .. " | " .. table.concat(cryItems, " | ")
+            end
 
-        requestFunction({
-            Url = webhookUrl,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(data)
-        })
+            local data = {
+                ["content"] = message
+            }
+
+            requestFunction({
+                Url = webhookUrl,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json"
+                },
+                Body = HttpService:JSONEncode(data)
+            })
+        end
 
         wait(360)
     end
 end
 spawn(SendWebhook)
+
+
+
+
+
