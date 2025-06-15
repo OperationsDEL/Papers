@@ -266,14 +266,11 @@ end
 
 spawn(TeleportToSlime)
 
-
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local LocalPlayer = Players.LocalPlayer
 
 local function IsActive(imageId)
-    local potionList = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PotionList")
+    local potionList = Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PotionList")
     for _, child in ipairs(potionList:GetChildren()) do
         if child:IsA("Frame") then
             for _, subChild in ipairs(child:GetChildren()) do
@@ -292,42 +289,47 @@ end
 
 local function EquipTool(toolName)
     for i = 0, 7 do
-        if LocalPlayer.Character:FindFirstChild(toolName) then break end
-        LocalPlayer.ClientHotbarIndex.Value = i
-        task.wait()
+        if Players.LocalPlayer.Character:FindFirstChild(toolName) then break end
+        Players.LocalPlayer.ClientHotbarIndex.Value = i
+        wait()
     end
 end
 
-local function AutoEquipTool()
+local function AutoEquipWeapon()
+    local LocalPlayer = Players.LocalPlayer
     while true do
-        if IsActive("rbxassetid://7981378333") then
-            repeat EquipTool("voidMattock") task.wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
-        else
-            local backpack = LocalPlayer:FindFirstChild("Backpack")
-            if backpack and backpack:FindFirstChild("eggDeviled") then
-                repeat EquipTool("eggDeviled") task.wait() until LocalPlayer.Character:FindFirstChild("eggDeviled")
+        local hasFhanhorn = false
 
-                repeat
-                    for _, child in ipairs(workspace:GetChildren()) do
-                        if child.Name == LocalPlayer.Name then
-                            local deviled = child:FindFirstChild("eggDeviled")
-                            if deviled then
-                                ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_EAT_FOOD:InvokeServer({
-                                    ["tool"] = deviled
-                                })
-                                break
-                            end
-                        end
-                    end
-                    task.wait()
-                until false
+        for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+            if item.Name == "eggDeviled" and item:FindFirstChild("Amount") and item.Amount.Value >= 1 then
+                hasFhanhorn = true
             end
         end
-        task.wait(1)
+
+        local fhanhornActive = IsActive("rbxassetid://7981378333")
+
+        if not fhanhornActive and hasFhanhorn then
+            repeat EquipTool("eggDeviled") wait() until LocalPlayer.Character:FindFirstChild("eggDeviled")
+            for _, child in ipairs(game.Workspace:GetChildren()) do
+                if child.Name == LocalPlayer.Name then
+                    local args = {["tool"] = child:FindFirstChild("eggDeviled")}
+                    ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_EAT_FOOD:InvokeServer(args)
+                end
+            end
+            wait(1)
+        else
+            repeat EquipTool("voidMattock") wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
+        end
+
+        wait(1)
     end
 end
 
-spawn(AutoEquipTool)
+spawn(AutoEquipWeapon)
+
+
+
+
 
 
 local timer = 0
