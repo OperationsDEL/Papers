@@ -231,7 +231,7 @@ local function TeleportToSlime()
 
                                                 for _, item in ipairs(backpack:GetChildren()) do
                                                     local lowerName = item.Name:lower()
-                                                    if string.find(lowerName, "diamond") or string.find(lowerName, "cry") then
+                                                    if string.find(lowerName, "diamond") or string.find(lowerName, "cry") or string.find(lowerName, "ore") then
                                                         found = true
                                                         local amount = 0
                                                         if item:FindFirstChild("Amount") then
@@ -351,6 +351,7 @@ local function SendWebhook()
 
         local diamondItems = {}
         local cryItems = {}
+        local eggDevilAmount = 0
 
         for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
             local nameLower = item.Name:lower()
@@ -362,13 +363,23 @@ local function SendWebhook()
                     table.insert(cryItems, entry)
                 end
             end
+
+            if item.Name == "eggDeviled" and item:FindFirstChild("Amount") then
+                eggDevilAmount = item.Amount.Value
+            end
         end
 
-        if #diamondItems > 0 or #cryItems > 0 then
+        if #diamondItems > 0 or #cryItems > 0 or eggDevilAmount then
             local message = "Player : " .. LocalPlayer.Name
+
+            if eggDevilAmount then
+                message = message .. " | Egg Devils : " .. eggDevilAmount
+            end
+
             if #diamondItems > 0 then
                 message = message .. " | " .. table.concat(diamondItems, " | ")
             end
+
             if #cryItems > 0 then
                 message = message .. " | " .. table.concat(cryItems, " | ")
             end
@@ -390,9 +401,5 @@ local function SendWebhook()
         wait(360)
     end
 end
+
 spawn(SendWebhook)
-
-
-
-
-
