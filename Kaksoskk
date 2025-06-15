@@ -354,7 +354,7 @@ while true do
         end
     end
 
-    task.wait(3)
+    task.wait(1)
 end
 end
 
