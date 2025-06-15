@@ -1,7 +1,40 @@
 
 
 
+local function withdrawitems()
+    while true do
+        local player = game:GetService("Players").LocalPlayer
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
 
+        for _, island in ipairs(workspace.Islands:GetChildren()) do
+            local blocks = island:FindFirstChild("Blocks")
+            if blocks then
+                for _, block in ipairs(blocks:GetChildren()) do
+                    if string.find(block.Name, "medium") and block:FindFirstChild("Contents") then
+                        local contents = block.Contents
+
+                        for _, content in ipairs(contents:GetChildren()) do
+                            if content.Name == "pancakeFhanhorn" or content.Name == "sushiDragonRoll" then
+                                RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
+                                    ["chest"] = block,
+                                    ["player_tracking_category"] = "join_from_web",
+                                    ["amount"] = 60,
+                                    ["tool"] = content,
+                                    ["action"] = "withdraw"
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        task.wait(3)
+    end
+end
+
+spawn(withdrawitems)
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -89,79 +122,171 @@ end
 spawn(breakores)
 
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local function hasChestName(name)
+    local lower = name:lower()
+    return string.find(lower, "chest") and string.find(lower, "diamond")
+end
+
+
 local function TeleportToSlime()
     while true do
-        local player = Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local root = character:WaitForChild("HumanoidRootPart")
-        local foundPortal = false
-        for _, island in ipairs(workspace.Islands:GetChildren()) do
-            if island:IsA("Model") then
+        local allPlayers = Players:GetPlayers()
+        local localPlayer = Players.LocalPlayer
+
+        if #allPlayers == 1 then
+            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+            local root = character:WaitForChild("HumanoidRootPart")
+            local foundPortal = false
+
+            for _, island in ipairs(workspace.Islands:GetChildren()) do
                 local blocks = island:FindFirstChild("Blocks")
-                if blocks and #blocks:GetChildren() > 0 then
+                if blocks then
                     for _, block in ipairs(blocks:GetChildren()) do
                         if block.Name == "portalToSpawn" then
                             local part = block:FindFirstChild("Part")
-                            if part and part:IsA("BasePart") then
-                                local distance = (root.Position - part.Position).Magnitude
-                                if distance <= 1000 then
-                                    AttackSlimes = false
-                                    root.CFrame = part.CFrame
-                                    task.wait(3)
-                                    foundPortal = true
-                                    break
-                                end
+                            if part and part:IsA("BasePart") and (root.Position - part.Position).Magnitude <= 1000 then
+                                AttackSlimes = false
+                                root.CFrame = part.CFrame
+                                task.wait(3)
+                                foundPortal = true
+                                break
                             end
                         end
                     end
                 end
+                if foundPortal then break end
             end
-            if foundPortal then break end
-        end
-        if not foundPortal then
-            local pos1 = Vector3.new(1575.69, 210.103, 108.088)
-            local pos2 = Vector3.new(2480, 238, 110)
-            local dist1 = (root.Position - pos1).Magnitude
-            local dist2 = (root.Position - pos2).Magnitude
-            if dist1 <= dist2 then
-                AttackSlimes = false
-                root.CFrame = CFrame.new(pos1)
-                task.wait(3)
-            else
-                repeat
-                    AttackSlimes = true
-                    wait()
-                    for _, island in ipairs(workspace.Islands:GetChildren()) do
-                        if island:IsA("Model") then
+
+            if not foundPortal then
+                local pos1 = Vector3.new(1575.69, 210.103, 108.088)
+                local pos2 = Vector3.new(2480, 238, 110)
+                if (root.Position - pos1).Magnitude <= (root.Position - pos2).Magnitude then
+                    AttackSlimes = false
+                    root.CFrame = CFrame.new(pos1)
+                    task.wait(3)
+                else
+                    repeat
+                        AttackSlimes = true
+                        task.wait()
+                        for _, island in ipairs(workspace.Islands:GetChildren()) do
                             local blocks = island:FindFirstChild("Blocks")
-                            if blocks and #blocks:GetChildren() > 0 then
+                            if blocks then
                                 for _, block in ipairs(blocks:GetChildren()) do
                                     if block.Name == "portalToSpawn" then
                                         local part = block:FindFirstChild("Part")
-                                        if part and part:IsA("BasePart") then
-                                            local distance = (root.Position - part.Position).Magnitude
-                                            if distance <= 1000 then
-                                                return
-                                            end
+                                        if part and part:IsA("BasePart") and (root.Position - part.Position).Magnitude <= 1000 then
+                                            return
                                         end
                                     end
                                 end
                             end
                         end
+                    until (root.Position - pos1).Magnitude > (root.Position - pos2).Magnitude
+                end
+            end
+
+        else
+            AttackSlimes = false
+            task.wait(15)
+
+            local otherPlayer
+            for _, p in ipairs(allPlayers) do
+                if p ~= localPlayer then
+                    otherPlayer = p
+                    break
+                end
+            end
+
+            if otherPlayer then
+                local otherUserId = otherPlayer.UserId
+                for _, island in ipairs(workspace.Islands:GetChildren()) do
+                    local owners = island:FindFirstChild("Owners")
+                    if owners then
+                        for _, val in ipairs(owners:GetChildren()) do
+                            if val:IsA("NumberValue") and val.Value == otherUserId then
+                                local args = {
+                                    [1] = {["island"] = island}
+                                }
+                                ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
+
+                                local blocks = island:FindFirstChild("Blocks")
+                                if blocks then
+                                    for _, block in ipairs(blocks:GetChildren()) do
+                                        if hasChestName(block.Name) then
+                                            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+                                            local root = character:WaitForChild("HumanoidRootPart")
+
+                                            repeat
+                                                ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
+                                                task.wait(1)
+                                            until (root.Position - block.Position).Magnitude <= 200
+
+                                            local backpack = localPlayer:FindFirstChild("Backpack")
+                                            if backpack then
+                                                local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+
+                                                for _, item in ipairs(backpack:GetChildren()) do
+                                                    local lowerName = item.Name:lower()
+                                                    if string.find(lowerName, "diamond") or string.find(lowerName, "cry") then
+                                                        local amount = 0
+                                                        if item:FindFirstChild("Amount") then
+                                                            amount = math.min(item.Amount.Value, 1250)
+                                                        end
+
+                                                        RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
+                                                            ["chest"] = block,
+                                                            ["player_tracking_category"] = "join_from_web",
+                                                            ["amount"] = amount,
+                                                            ["tool"] = item,
+                                                            ["action"] = "deposit"
+                                                        })
+                                                        task.wait(0.1)
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                                break
+                            end
+                        end
                     end
-                    local distToPos1 = (root.Position - Vector3.new(1575.69, 210.103, 108.088)).Magnitude
-                until distToPos1 > (root.Position - pos2).Magnitude
+                end
             end
         end
-        wait(3)
+
+        task.wait(3)
     end
 end
+
 spawn(TeleportToSlime)
 
 
 
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local function IsActive(imageId)
+    local potionList = Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PotionList")
+    for _, child in ipairs(potionList:GetChildren()) do
+        if child:IsA("Frame") then
+            for _, subChild in ipairs(child:GetChildren()) do
+                if subChild:IsA("Frame") then
+                    for _, last in ipairs(subChild:GetChildren()) do
+                        if last:IsA("ImageLabel") and last.Image == imageId then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
 
 local function EquipTool(toolName)
     for i = 0, 7 do
@@ -171,15 +296,34 @@ local function EquipTool(toolName)
     end
 end
 
-local function AutoEquipVoidMattock()
+local function AutoEquipTool()
     local LocalPlayer = Players.LocalPlayer
+
     while true do
-        repeat EquipTool("voidMattock") wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
+        local potionActive = IsActive("rbxassetid://7981378333")
+
+        if potionActive then
+            repeat EquipTool("voidMattock") wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
+
+            for _, child in ipairs(workspace:GetChildren()) do
+                if child.Name == LocalPlayer.Name then
+                    local deviled = child:FindFirstChild("eggDeviled")
+                    if deviled then
+                        local args = {["tool"] = deviled}
+                        ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_EAT_FOOD:InvokeServer(args)
+                    end
+                end
+            end
+        else
+            repeat EquipTool("voidMattock") wait() until LocalPlayer.Character:FindFirstChild("voidMattock")
+        end
+
         wait(1)
     end
 end
 
-spawn(AutoEquipVoidMattock)
+spawn(AutoEquipTool)
+
 
 
 
