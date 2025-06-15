@@ -11,7 +11,7 @@ local function withdrawitems()
             local blocks = island:FindFirstChild("Blocks")
             if blocks then
                 for _, block in ipairs(blocks:GetChildren()) do
-                    if string.find(block.Name, "medium") and block:FindFirstChild("Contents") then
+                    if string.find(block.Name, "chest") and block:FindFirstChild("Contents") then
                         local contents = block.Contents
 
                         for _, content in ipairs(contents:GetChildren()) do
