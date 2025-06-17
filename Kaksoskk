@@ -58,7 +58,7 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local camera = workspace.CurrentCamera
-
+local stop = false
 local AttackSlimes = false
 local FarmSlime = true
 
@@ -161,10 +161,12 @@ spawn(SlimeRemote)
 local function autoclick()
     while true do
         if AttackSlimes then
+if stop == false then 
             local size = camera.ViewportSize
             local center = Vector2.new(size.X / 2, size.Y / 2)
             VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, true, game, 0)
             VirtualInputManager:SendMouseButtonEvent(center.X, center.Y, 0, false, game, 0)
+end
         end
         wait(0.3)
     end
@@ -455,6 +457,7 @@ local WebhookURL = "https://discord.com/api/webhooks/1380901650503438436/mJCDUIL
 local requestFunction = (syn and syn.request) or request or (http and http.request) or http_request
 
 local function send()
+stop = true
 	requestFunction({
 		Url = WebhookURL,
 		Method = "POST",
@@ -474,7 +477,9 @@ spawn(function()
 			local old = item:FindFirstChild("Amount") and item.Amount.Value or 0
 			task.wait(380)
 			local new = item:FindFirstChild("Amount") and item.Amount.Value or 0
+stop = false
 			if old == new then send() end
+
 		end
 		task.wait(5)
 	end
