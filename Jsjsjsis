@@ -35,236 +35,162 @@ local function withdrawitems()
 end
 
 spawn(withdrawitems)
+
+
+
+
+
+
+
+
+local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
-local AttackSlimes = false
-
-local function GetClosestRock()
-    local diamondTarget, rockTarget = nil, nil
-    local diamondDist, rockDist = math.huge, math.huge
-    local player = Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    for _, child in ipairs(workspace.WildernessBlocks:GetChildren()) do
-        if string.find(child.Name:lower(), "rock") and child:FindFirstChild("1") then
-            local dist = (humanoidRootPart.Position - child.Position).Magnitude
-            if string.find(child.Name:lower(), "diamond") then
-                if dist < diamondDist then
-                    diamondTarget = child
-                    diamondDist = dist
-                end
-            else
-                if dist < rockDist then
-                    rockTarget = child
-                    rockDist = dist
-                end
-            end
-        end
-    end
-    return diamondTarget or rockTarget
+local function BreakWood()
+while true do
+for _, island in ipairs(workspace.Islands:GetChildren()) do
+local blocks = island:FindFirstChild("Blocks")
+if blocks then
+for _, block in ipairs(blocks:GetChildren()) do
+if string.find(block.Name:lower(), "tree") and (block.Position - HumanoidRootPart.Position).Magnitude <= 40 then
+coroutine.wrap(function()
+local args = {
+[1] = {
+["xkpOrfvithbzcvKundjsvoamBnpkqBsXm"] = "\7\240\159\164\163\240\159\164\161\7\n\7\n\7\nkyaxebDphmkcyha",
+["part"] = block,
+["block"] = block,
+}
+}
+game:GetService("ReplicatedStorage").rbxts_include.node_modules:FindFirstChild("@rbxts").net.out._NetManaged.CLIENT_BLOCK_HIT_REQUEST:InvokeServer(unpack(args))
+end)()
+end
+end
+end
+end
+wait()
+end
 end
 
-local function TweenToRock(target)
-    local player = Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local destination = target.Position + Vector3.new(0, 8, 0)
-    if not humanoidRootPart:FindFirstChild("AutoTPVelocity") then
-        local bv = Instance.new("BodyVelocity")
-        bv.Velocity = Vector3.new(0, 0, 0)
-        bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-        bv.Name = "AutoTPVelocity"
-        bv.Parent = humanoidRootPart
-    end
-    local distance = (humanoidRootPart.Position - destination).Magnitude
-    local speed = distance <= 8 and 9999999 or 25
-    local duration = distance / speed
-    local tween = TweenService:Create(humanoidRootPart, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = CFrame.new(destination)})
-    tween:Play()
-    tween.Completed:Wait()
-end
-
-local function farmores()
-    while true do
-        if AttackSlimes then
-            local rock = GetClosestRock()
-            if rock then
-                TweenToRock(rock)
-            end
-        end
-        wait()
-    end
-end
-
-spawn(farmores)
-
-local function breakores()
-    while true do
-        if AttackSlimes then
-            local target = GetClosestRock()
-            if target then
-                local args = {
-                    [1] = {
-                        ["xkpOrfvithbzcvKundjsvoamBnpkqBsXm"] = "\7\240\159\164\163\240\159\164\161\7\n\7\n\7\nkyaxebDphmkcyha",
-                        ["part"] = target:FindFirstChild("1"),
-                        ["block"] = target,
-                    }
-                }
-                ReplicatedStorage.rbxts_include.node_modules:FindFirstChild("@rbxts").net.out._NetManaged.CLIENT_BLOCK_HIT_REQUEST:InvokeServer(unpack(args))
-            end
-        end
-        wait()
-    end
-end
-
-spawn(breakores)
+spawn(BreakWood)
 
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
-local function hasChestName(name)
-    local lower = name:lower()
-    return string.find(lower, "chest") and string.find(lower, "diamond")
+local localPlayer = Players.LocalPlayer
+local HumanoidRootPart = localPlayer.Character:WaitForChild("HumanoidRootPart")
+local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+
+local function TeleportToWood()
+	while true do
+		if not HumanoidRootPart:FindFirstChild("TreeBodyVelocity") then
+			local bv = Instance.new("BodyVelocity")
+			bv.Name = "TreeBodyVelocity"
+			bv.Velocity = Vector3.new(0, 0, 0)
+			bv.MaxForce = Vector3.new(0, math.huge, 0)
+			bv.Parent = HumanoidRootPart
+		end
+
+		local playerCount = #Players:GetPlayers()
+		local selectedTree, closestDistance = nil, math.huge
+		local BlocksFolder = nil
+
+		for _, island in ipairs(workspace.Islands:GetChildren()) do
+			local blocks = island:FindFirstChild("Blocks")
+			if blocks then
+				for _, block in ipairs(blocks:GetChildren()) do
+					if string.find(block.Name:lower(), "tree") then
+						local mag = (block.Position - HumanoidRootPart.Position).Magnitude
+						if mag < closestDistance then
+							selectedTree = block
+							closestDistance = mag
+							BlocksFolder = blocks.Parent
+						end
+					end
+				end
+			end
+		end
+
+		-- If 1 player: go to tree
+		if selectedTree and playerCount == 1 then
+			local tween = TweenService:Create(HumanoidRootPart, TweenInfo.new(closestDistance / 20, Enum.EasingStyle.Linear), {
+				CFrame = CFrame.new(selectedTree.Position)
+			})
+			tween:Play()
+			tween.Completed:Wait()
+			task.wait()
+		end
+
+		-- If 2 players: go to diamond/chest blocks and deposit wood items
+		if playerCount == 2 and BlocksFolder then
+			local blocks = BlocksFolder:FindFirstChild("Blocks")
+			if blocks then
+				for _, block in ipairs(blocks:GetChildren()) do
+					local lowerName = block.Name:lower()
+					if string.find(lowerName, "chest") or string.find(lowerName, "diamond") then
+						-- Tween to chest
+						repeat
+							local dist = (HumanoidRootPart.Position - block.Position).Magnitude
+							local tween = TweenService:Create(HumanoidRootPart, TweenInfo.new(dist / 20, Enum.EasingStyle.Linear), {
+								CFrame = CFrame.new(block.Position)
+							})
+							tween:Play()
+							tween.Completed:Wait()
+							task.wait()
+						until (HumanoidRootPart.Position - block.Position).Magnitude <= 15
+
+						-- Deposit wood items
+						local backpack = localPlayer:FindFirstChild("Backpack")
+						if backpack then
+							while true do
+								local foundWood = false
+								for _, item in ipairs(backpack:GetChildren()) do
+									if item:IsA("Tool") and string.find(item.Name:lower(), "wood") and item.Name ~= "woodAxe" then
+										foundWood = true
+										print(item.Name)
+
+										local amount = 0
+										if item:FindFirstChild("Amount") then
+											if item.Amount.Value >= 1250 then
+												amount = 1250
+											else
+												amount = item.Amount.Value
+											end
+										end
+
+										RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
+											["chest"] = block,
+											["player_tracking_category"] = "join_from_web",
+											["amount"] = amount,
+											["tool"] = item,
+											["action"] = "deposit"
+										})
+
+										task.wait()
+									end
+								end
+								if not foundWood then break end
+								task.wait()
+							end
+						end
+						wait()
+					end
+				end
+			end
+		end
+
+		wait()
+	end
 end
 
-local function TeleportToSlime()
-    while true do
-        local allPlayers = Players:GetPlayers()
-        local localPlayer = Players.LocalPlayer
+spawn(TeleportToWood)
 
-        if #allPlayers == 1 then
-            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-            local root = character:WaitForChild("HumanoidRootPart")
-            local foundPortal = false
 
-            for _, island in ipairs(workspace.Islands:GetChildren()) do
-                local blocks = island:FindFirstChild("Blocks")
-                if blocks then
-                    for _, block in ipairs(blocks:GetChildren()) do
-                        if block.Name == "portalToSpawn" then
-                            local part = block:FindFirstChild("Part")
-                            if part and part:IsA("BasePart") and (root.Position - part.Position).Magnitude <= 1000 then
-                                AttackSlimes = false
-                                root.CFrame = part.CFrame
-                                task.wait(3)
-                                foundPortal = true
-                                break
-                            end
-                        end
-                    end
-                end
-                if foundPortal then break end
-            end
-
-            if not foundPortal then
-                local pos1 = Vector3.new(1575.69, 210.103, 108.088)
-                local pos2 = Vector3.new(2480, 238, 110)
-                if (root.Position - pos1).Magnitude <= (root.Position - pos2).Magnitude then
-                    AttackSlimes = false
-                    root.CFrame = CFrame.new(pos1)
-                    task.wait(3)
-                else
-                    repeat
-                        AttackSlimes = true
-                        task.wait()
-                        for _, island in ipairs(workspace.Islands:GetChildren()) do
-                            local blocks = island:FindFirstChild("Blocks")
-                            if blocks then
-                                for _, block in ipairs(blocks:GetChildren()) do
-                                    if block.Name == "portalToSpawn" then
-                                        local part = block:FindFirstChild("Part")
-                                        if part and part:IsA("BasePart") and (root.Position - part.Position).Magnitude <= 1000 then
-                                            return
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    until (root.Position - pos1).Magnitude > (root.Position - pos2).Magnitude
-                end
-            end
-
-        else
-            AttackSlimes = false
-            task.wait(15)
-
-            local otherPlayer
-            for _, p in ipairs(allPlayers) do
-                if p ~= localPlayer then
-                    otherPlayer = p
-                    break
-                end
-            end
-
-            if otherPlayer then
-                local otherUserId = otherPlayer.UserId
-                for _, island in ipairs(workspace.Islands:GetChildren()) do
-                    local owners = island:FindFirstChild("Owners")
-                    if owners then
-                        for _, val in ipairs(owners:GetChildren()) do
-                            if val:IsA("NumberValue") and val.Value == otherUserId then
-                                local args = {
-                                    [1] = {["island"] = island}
-                                }
-                                ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
-
-                                local blocks = island:FindFirstChild("Blocks")
-                                if blocks then
-                                    for _, block in ipairs(blocks:GetChildren()) do
-                                        if hasChestName(block.Name) then
-                                            local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
-                                            local root = character:WaitForChild("HumanoidRootPart")
-
-                                            repeat
-                                                ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
-                                                task.wait(1)
-                                            until (root.Position - block.Position).Magnitude <= 200
-
-                                            local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
-
-                                            repeat
-                                                local backpack = localPlayer:FindFirstChild("Backpack")
-                                                local found = false
-
-                                                for _, item in ipairs(backpack:GetChildren()) do
-                                                    local lowerName = item.Name:lower()
-                                                    if string.find(lowerName, "diamond") or string.find(lowerName, "cry") or string.find(lowerName, "ore") then
-                                                        found = true
-                                                        local amount = 0
-                                                        if item:FindFirstChild("Amount") then
-                                                            amount = math.min(item.Amount.Value, 1250)
-                                                        end
-
-                                                        RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
-                                                            ["chest"] = block,
-                                                            ["player_tracking_category"] = "join_from_web",
-                                                            ["amount"] = amount,
-                                                            ["tool"] = item,
-                                                            ["action"] = "deposit"
-                                                        })
-                                                        task.wait(0.1)
-                                                    end
-                                                end
-                                            until not found
-                                        end
-                                    end
-                                end
-                                break
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        task.wait(3)
-    end
-end
-
-spawn(TeleportToSlime)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -328,10 +254,6 @@ end
 spawn(AutoEquipWeapon)
 
 
-
-
-
-
 local timer = 0
 local function TimerRun()
     while true do
@@ -349,40 +271,17 @@ local function SendWebhook()
         local webhookUrl = "https://discord.com/api/webhooks/1233196606401019975/qIxgbxZsF4dwVkMkDNB_Ei-p7zWhGwQ4DoPlgraHwJOkhUedOaDH6PYLDeXtNElNOF4x"
         local requestFunction = (syn and syn.request) or request or (http and http.request) or http_request
 
-        local diamondItems = {}
-        local cryItems = {}
-        local eggDevilAmount = 0
+        local woodItems = {}
 
         for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
             local nameLower = item.Name:lower()
-            if (string.find(nameLower, "diamond") or string.find(nameLower, "cry")) and item:FindFirstChild("Amount") then
-                local entry = item.Name .. ": " .. item.Amount.Value
-                if string.find(nameLower, "diamond") then
-                    table.insert(diamondItems, entry)
-                elseif string.find(nameLower, "cry") then
-                    table.insert(cryItems, entry)
-                end
-            end
-
-            if item.Name == "eggDeviled" and item:FindFirstChild("Amount") then
-                eggDevilAmount = item.Amount.Value
+            if string.find(nameLower, "wood") and item:FindFirstChild("Amount") then
+                table.insert(woodItems, item.Name .. ": " .. item.Amount.Value)
             end
         end
 
-        if #diamondItems > 0 or #cryItems > 0 or eggDevilAmount then
-            local message = "Player : " .. LocalPlayer.Name
-
-            if eggDevilAmount then
-                message = message .. " | Egg Devils : " .. eggDevilAmount
-            end
-
-            if #diamondItems > 0 then
-                message = message .. " | " .. table.concat(diamondItems, " | ")
-            end
-
-            if #cryItems > 0 then
-                message = message .. " | " .. table.concat(cryItems, " | ")
-            end
+        if #woodItems > 0 then
+            local message = "Player: " .. LocalPlayer.Name .. " | " .. table.concat(woodItems, " | ")
 
             local data = {
                 ["content"] = message
@@ -403,3 +302,7 @@ local function SendWebhook()
 end
 
 spawn(SendWebhook)
+
+
+
+
