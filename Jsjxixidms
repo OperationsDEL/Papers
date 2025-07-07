@@ -186,19 +186,29 @@ spawn(damntest1)
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+-- AutoPerms GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "AutoPermsGui"
 
-local toggle = false
+local toggle = true
 local button = Instance.new("TextButton", gui)
 button.Size = UDim2.new(0, 80, 0, 35)
 button.Position = UDim2.new(1, -90, 0, 10)
 button.AnchorPoint = Vector2.new(0, 0)
 button.Text = "AutoPerms"
-button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 button.TextScaled = true
 
-local thread
+local thread = coroutine.create(function()
+	while toggle do
+		local args = {
+			"y"
+		}
+		game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("SkipWave"):InvokeServer(unpack(args))
+		wait()
+	end
+end)
+coroutine.resume(thread)
 
 button.MouseButton1Click:Connect(function()
 	toggle = not toggle
@@ -219,24 +229,21 @@ button.MouseButton1Click:Connect(function()
 	end
 end)
 
+-- Auto Restart
 local function autorestart()
-while true do
-
-game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("RestartGame"):InvokeServer()
-wait(1)
-end
+	while true do
+		game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("RestartGame"):InvokeServer()
+		wait(1)
+	end
 end
 spawn(autorestart)
 
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
+-- Difficulty Vote GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "DifficultyVote"
 
 local buttonNames = {"easy", "medium", "hard", "insane"}
-local active = nil
+local active = "insane"
 local threads = {}
 
 for i, name in ipairs(buttonNames) do
@@ -247,6 +254,22 @@ for i, name in ipairs(buttonNames) do
 	button.Name = name
 	button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 	button.TextScaled = true
+
+	if name == "insane" then
+		button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+		local diffArg = "dif_" .. name
+		local thread = coroutine.create(function()
+			while active == name do
+				local args = {
+					diffArg
+				}
+				game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("PlaceDifficultyVote"):InvokeServer(unpack(args))
+				wait(1)
+			end
+		end)
+		threads[name] = thread
+		coroutine.resume(thread)
+	end
 
 	button.MouseButton1Click:Connect(function()
 		if active == name then return end
