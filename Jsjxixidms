@@ -31,7 +31,7 @@ while true do
 for _, child in ipairs(workspace.Map.Entities:GetChildren()) do
 	if child:IsA("Model") then
 		local value = child:GetAttribute("ID")
-		print(value)
+		
 		
 		if value then
 			local args = {
