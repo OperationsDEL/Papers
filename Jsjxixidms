@@ -115,9 +115,19 @@ local function autolacefr()
                     }
                 }
                 game:GetService("ReplicatedStorage").RemoteFunctions.PlaceUnit:InvokeServer(unpack(args))
-                wait(1)
+
 local args = {
                     "unit_tomato_plant",
+                    {
+                        ["Valid"] = true,
+                        ["Position"] = pos,
+                        ["CF"] = CFrame.new(pos) * CFrame.Angles(-math.pi, 0, -math.pi),
+                        ["Rotation"] = 180
+                    }
+                }
+                game:GetService("ReplicatedStorage").RemoteFunctions.PlaceUnit:InvokeServer(unpack(args))
+              local args = {
+                    "unit_farmer_npc",
                     {
                         ["Valid"] = true,
                         ["Position"] = pos,
