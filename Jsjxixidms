@@ -19,8 +19,8 @@ local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 spawn(function()
 while true do
 wait(1)
-if (HumanoidRootPart.Position - Vector3.new(104, 65, 972)).Magnitude <= 50 then
-HumanoidRootPart.CFrame = CFrame.new(135.60, 65.17, 818.28)
+if (HumanoidRootPart.Position - Vector3.new(-501, 65, 974)).Magnitude <= 50 then
+HumanoidRootPart.CFrame = CFrame.new(-524, 66, 798)
 end
 end
 end)
