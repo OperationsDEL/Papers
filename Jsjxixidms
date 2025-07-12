@@ -10,6 +10,7 @@ spawn(function()
     end
 end)
 
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -19,11 +20,10 @@ spawn(function()
 while true do
 wait(1)
 if (HumanoidRootPart.Position - Vector3.new(104, 65, 972)).Magnitude <= 50 then
-HumanoidRootPart.CFrame = CFrame.new(135.60, 65.17, 818.28)
+HumanoidRootPart.CFrame = CFrame.new(84.60, 66.17, 811.28)
 end
 end
 end)
-
 
 local function autoupgrade()
 while true do
