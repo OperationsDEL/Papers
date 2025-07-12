@@ -24,6 +24,7 @@ HumanoidRootPart.CFrame = CFrame.new(84.60, 66.17, 811.28)
 end
 end
 end)
+
 local function votemappp()
 while true do
 wait(1)
@@ -270,7 +271,7 @@ spawn(autorestart)
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "DifficultyVote"
 
-local buttonNames = {"easy", "medium", "hard", "impossible"}
+local buttonNames = {"easy", "medium", "hard", "insane"}
 local active = "impossible"
 local threads = {}
 
@@ -283,7 +284,7 @@ for i, name in ipairs(buttonNames) do
 	button.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 	button.TextScaled = true
 
-	if name == "impossible" then
+	if name == "insane" then
 		button.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
 		local diffArg = "dif_" .. name
 		local thread = coroutine.create(function()
