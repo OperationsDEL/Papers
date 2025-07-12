@@ -97,7 +97,7 @@ local function autolacefr()
     while true do
         local username = player.Name
 
-        if username == "lambtris17" or username == "lambtris18" or username == "lambtris12iiii" then
+        if username == "lambtris25" or username == "lambtris26" or username == "lambtris12iiii$8" then
             local positions = {
                 Vector3.new(-332.1462707519531, 63.38456726074219, -134.61106872558594),
                 Vector3.new(-309.78564453125, 63.38456726074219, -141.19989013671875),
