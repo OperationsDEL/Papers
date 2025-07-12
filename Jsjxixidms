@@ -272,7 +272,7 @@ local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "DifficultyVote"
 
 local buttonNames = {"easy", "medium", "hard", "insane"}
-local active = "impossible"
+local active = "insane"
 local threads = {}
 
 for i, name in ipairs(buttonNames) do
