@@ -16,16 +16,25 @@ local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
+local username = LocalPlayer.Name
+
+local allowedUsers = {
+	["lambtris53"] = true,
+	["lambtris54"] = true,
+	["lambtris12iiii$8"] = true
+}
+
 spawn(function()
-while true do
-wait(1)
-if username ~= "lambtris53" or username ~= "lambtris54" or username ~= "lambtris12iiii$8" then
-if (HumanoidRootPart.Position - Vector3.new(-501, 65, 974)).Magnitude <= 50 then
-HumanoidRootPart.CFrame = CFrame.new(-524, 66, 798)
-end
-end
-end
+	while true do
+		wait(1)
+		if not allowedUsers[username] then
+			if (HumanoidRootPart.Position - Vector3.new(-501, 65, 974)).Magnitude <= 50 then
+				HumanoidRootPart.CFrame = CFrame.new(-524, 66, 798)
+			end
+		end
+	end
 end)
+
 
 local function votemappp()
 while true do
