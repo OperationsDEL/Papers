@@ -19,8 +19,10 @@ local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 spawn(function()
 while true do
 wait(1)
+if username ~= "lambtris53" or username ~= "lambtris54" or username ~= "lambtris12iiii$8" then
 if (HumanoidRootPart.Position - Vector3.new(-501, 65, 974)).Magnitude <= 50 then
 HumanoidRootPart.CFrame = CFrame.new(-524, 66, 798)
+end
 end
 end
 end)
