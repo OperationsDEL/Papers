@@ -19,8 +19,8 @@ local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local username = LocalPlayer.Name
 
 local allowedUsers = {
-	["lambtris53"] = true,
-	["lambtris54"] = true,
+	["lambtris51"] = true,
+	["lambtris52"] = true,
 	["lambtris12iiii$8"] = true
 }
 
