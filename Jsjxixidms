@@ -19,8 +19,8 @@ local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local username = LocalPlayer.Name
 
 local allowedUsers = {
-	["lambtris51"] = true,
-	["lambtris52"] = true,
+	["wildinsummrs1"] = true,
+	["wildinsummrs2"] = true,
 	["lambtris12iiii$8"] = true
 }
 
@@ -128,7 +128,7 @@ local function autolacefr()
     while true do
         local username = player.Name
 
-        if username == "lambtris51" or username == "lambtris52" or username == "lambtris12iiii$8" then
+        if username == "wildinsummrs1" or username == "wildinsummrs2" or username == "lambtris12iiii$8" then
             local positions = {
                 Vector3.new(-332.1462707519531, 63.38456726074219, -134.61106872558594),
                 Vector3.new(-309.78564453125, 63.38456726074219, -141.19989013671875),
