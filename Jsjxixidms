@@ -1,3 +1,27 @@
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HRP = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
+
+local targetPos = Vector3.new(35.94, 76.22, 788.66)
+local walkPos = Vector3.new(24.76, 76.22, 795.93)
+
+if game.PlaceId == 108533757090220 then
+	local function positioncheck()
+		while true do
+			wait(1)
+			if (HRP.Position - targetPos).Magnitude > 20 then
+				HRP.CFrame = CFrame.new(targetPos)
+			elseif (HRP.Position - targetPos).Magnitude <= 20 then
+				Humanoid.WalkToPoint = walkPos
+			end
+		end
+	end
+	spawn(positioncheck)
+end
+
+
 local function setgame()
 while true do
 wait(0.1)
