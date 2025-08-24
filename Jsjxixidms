@@ -8,22 +8,19 @@ local targetPos = Vector3.new(84.82, 65.67, 798.37)
 local walkPos = Vector3.new(82.59, 66.67, 768.45)
 
 if game.PlaceId == 108533757090220 then
-	local function positioncheck()
-	
-			wait(1)
-			if (HRP.Position - targetPos).Magnitude > 20 then
-				HRP.CFrame = CFrame.new(targetPos)
-			elseif (HRP.Position - targetPos).Magnitude <= 20 then
-				Humanoid.WalkToPoint = walkPos
+	while true do
+		task.wait(1)
+		if (HRP.Position - targetPos).Magnitude > 20 then
+			HRP.CFrame = CFrame.new(targetPos)
+		else
+			if (HRP.Position - walkPos).Magnitude > 5 then
+				Humanoid:MoveTo(walkPos)
 			end
-		
+		end
 	end
+end
 
-while true do
-	spawn(positioncheck)
-wait(1)
-end
-end
+
 local function autoupgrade()
 while true do
 
