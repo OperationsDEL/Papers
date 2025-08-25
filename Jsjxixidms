@@ -315,7 +315,7 @@ while true do
     task.wait(30)
 end
 end
-spawn(autoopen)
+spawn(autoppen)
 local Players = game:GetService("Players")
 local localplayer = Players.LocalPlayer
 
