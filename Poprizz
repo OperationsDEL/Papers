@@ -1,0 +1,128 @@
+local Players = game:GetService("Players")
+local localplayer = Players.LocalPlayer
+
+if localplayer.Name == "lambtris53" then
+    local function setgame()
+        while true do
+            task.wait(0.1)
+            local args = { "dif_easy" }
+            game:GetService("ReplicatedStorage").RemoteFunctions.PlaceDifficultyVote:InvokeServer(unpack(args))
+        end
+    end
+    spawn(setgame)
+
+    local function reset()
+        while true do
+            task.wait(0.1)
+            game:GetService("ReplicatedStorage").RemoteFunctions.RestartGame:InvokeServer()
+        end
+    end
+    spawn(reset)
+
+    local function skip()
+        while true do
+            task.wait(0.1)
+            local args = { 3 }
+            game:GetService("ReplicatedStorage").RemoteFunctions.ChangeTickSpeed:InvokeServer(unpack(args))
+            local args2 = { "y" }
+            game:GetService("ReplicatedStorage").RemoteFunctions.SkipWave:InvokeServer(unpack(args2))
+        end
+    end
+    spawn(skip)
+
+    local function autoplace()
+        while true do
+            task.wait(0.1)
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local PlaceUnit = ReplicatedStorage.RemoteFunctions.PlaceUnit
+
+            local units = {
+                Vector3.new(-318.1523132324219, 61.68030548095703, -151.67904663085938),
+                Vector3.new(-314.3609313964844, 61.68030548095703, -152.3798370361328),
+                Vector3.new(-320.0655517578125, 61.68030548095703, -147.30296325683594),
+                Vector3.new(-315.4836120605469, 61.68030548095703, -147.51255798339844)
+            }
+
+            for _, pos in ipairs(units) do
+                local cf = CFrame.new(pos) * CFrame.Angles(-math.pi, 0, -math.pi)
+                local args = {
+                    "unit_old_machine",
+                    {
+                        Valid = true,
+                        WasFastPlaced = true,
+                        Position = pos,
+                        CF = cf,
+                        Rotation = 180
+                    }
+                }
+                PlaceUnit:InvokeServer(unpack(args))
+            end
+        end
+    end
+    spawn(autoplace)
+
+elseif localplayer.Name == "somethingelse" then
+    local function setgame()
+        while true do
+            task.wait(0.1)
+            local args = { "dif_easy" }
+            game:GetService("ReplicatedStorage").RemoteFunctions.PlaceDifficultyVote:InvokeServer(unpack(args))
+        end
+    end
+    spawn(setgame)
+
+    local function reset()
+        while true do
+            task.wait(0.1)
+            game:GetService("ReplicatedStorage").RemoteFunctions.RestartGame:InvokeServer()
+        end
+    end
+    spawn(reset)
+
+    local function skip()
+        while true do
+            task.wait(0.1)
+            local args = { "y" }
+            game:GetService("ReplicatedStorage").RemoteFunctions.SkipWave:InvokeServer(unpack(args))
+        end
+    end
+    spawn(skip)
+
+    local function autoplace()
+        while true do
+            task.wait(0.1)
+            local ReplicatedStorage = game:GetService("ReplicatedStorage")
+            local PlaceUnit = ReplicatedStorage.RemoteFunctions.PlaceUnit
+
+            local pathPoints = {
+                Vector3.new(-311.032470703125, 61.68030548095703, -169.3814239501953),
+                Vector3.new(-309.9976806640625, 61.68030548095703, -143.0479278564453),
+                Vector3.new(-334.97576904296875, 61.68030548095703, -141.18312072753906)
+            }
+
+            local function getRandomPoint()
+                local i = math.random(1, #pathPoints - 1)
+                local a = pathPoints[i]
+                local b = pathPoints[i+1]
+                local t = math.random()
+                return a:Lerp(b, t)
+            end
+
+            local pos = getRandomPoint()
+            local cf = CFrame.new(pos) * CFrame.Angles(-math.pi, 0, -math.pi)
+
+            local args = {
+                "unit_tomato_plant",
+                {
+                    Valid = true,
+                    WasFastPlaced = true,
+                    Position = pos,
+                    CF = cf,
+                    Rotation = 180
+                }
+            }
+            PlaceUnit:InvokeServer(unpack(args))
+        end
+    end
+    spawn(autoplace)
+end
