@@ -23,7 +23,7 @@ spawn(autoupgrade)
 if localplayer.Name == "lambtris53" then
     local function setgame()
         while true do
-            task.wait(0.1)
+            task.wait(1)
             local args = { "dif_easy" }
             game:GetService("ReplicatedStorage").RemoteFunctions.PlaceDifficultyVote:InvokeServer(unpack(args))
         end
@@ -32,7 +32,7 @@ if localplayer.Name == "lambtris53" then
 
     local function reset()
         while true do
-            task.wait(0.1)
+            task.wait(1)
             game:GetService("ReplicatedStorage").RemoteFunctions.RestartGame:InvokeServer()
         end
     end
