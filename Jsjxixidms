@@ -1,3 +1,4 @@
+local function gamecheck()
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local Character = Player.Character or Player.CharacterAdded:Wait()
@@ -6,8 +7,8 @@ local Humanoid = Character:WaitForChild("Humanoid")
 
 local targetPos = Vector3.new(84.82, 65.67, 798.37)
 local walkPos = Vector3.new(82.59, 66.67, 768.45)
-local function gamecheck()
-if game.PlaceId == 108533757090220 then
+
+if game.PlaceId == "108533757090220" or "123516946198836" then
 	while true do
 		task.wait(1)
 		if (HRP.Position - targetPos).Magnitude > 20 then
