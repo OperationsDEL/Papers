@@ -277,29 +277,6 @@ end
 spawn(autoplace)
 
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local effectHolder = workspace:WaitForChild("EffectHolder")
-
-local function autocollect()
-    while true do
-        task.wait(0.3)
-        pcall(function()
-            local character = player.Character
-            local hrp = character and character:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                for _, child in ipairs(effectHolder:GetChildren()) do
-                    if child.Name == "Sunflower" and child:FindFirstChild("PrimaryPart") then
-                        hrp.CFrame = child.PrimaryPart.CFrame
-                    end
-                end
-            end
-        end)
-    end
-end
-
-spawn(autocollect)
-
 local function autoppen()
 
 while true do
@@ -436,3 +413,28 @@ local function applySizes()
 end
 
 spawn(applySizes)
+wait(20)
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local effectHolder = workspace:WaitForChild("EffectHolder")
+
+local function autocollect()
+    while true do
+        task.wait(0.3)
+        pcall(function()
+            local character = player.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                for _, child in ipairs(effectHolder:GetChildren()) do
+                    if child.Name == "Sunflower" and child:FindFirstChild("PrimaryPart") then
+                        hrp.CFrame = child.PrimaryPart.CFrame
+                    end
+                end
+            end
+        end)
+    end
+end
+
+spawn(autocollect)
