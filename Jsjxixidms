@@ -276,23 +276,6 @@ end
 end
 spawn(autoplace)
 
-
-local function autoppen()
-
-while true do
-    local start = tick()
-    while tick() - start < 60 do
-        local args = {
-            [1] = "ub_sun",
-            [2] = 10
-        }
-        game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox:InvokeServer(unpack(args))
-        task.wait(0.01)
-    end
-    task.wait(120)
-end
-end
-spawn(autoppen)
 local Players = game:GetService("Players")
 local localplayer = Players.LocalPlayer
 
@@ -416,6 +399,23 @@ spawn(applySizes)
 wait(20)
 
 
+
+local function autoppen()
+
+while true do
+    local start = tick()
+    while tick() - start < 60 do
+        local args = {
+            [1] = "ub_sun",
+            [2] = 10
+        }
+        game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox:InvokeServer(unpack(args))
+        task.wait(0.01)
+    end
+    task.wait(120)
+end
+end
+spawn(autoppen)
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local effectHolder = workspace:WaitForChild("EffectHolder")
