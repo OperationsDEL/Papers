@@ -284,14 +284,17 @@ local effectHolder = workspace:WaitForChild("EffectHolder")
 local function autocollect()
     while true do
         task.wait(0.1)
-        local character = player.Character or player.CharacterAdded:Wait()
-        local hrp = character:WaitForChild("HumanoidRootPart")
-        
-        for _, child in ipairs(effectHolder:GetChildren()) do
-            if child.Name == "Sunflower" and child:FindFirstChild("PrimaryPart") then
-                hrp.CFrame = child.PrimaryPart.CFrame
+        pcall(function()
+            local character = player.Character
+            local hrp = character and character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                for _, child in ipairs(effectHolder:GetChildren()) do
+                    if child.Name == "Sunflower" and child:FindFirstChild("PrimaryPart") then
+                        hrp.CFrame = child.PrimaryPart.CFrame
+                    end
+                end
             end
-        end
+        end)
     end
 end
 
