@@ -1,6 +1,25 @@
 local Players = game:GetService("Players")
 local localplayer = Players.LocalPlayer
+local function autoupgrade()
+while true do
 
+for _, child in ipairs(workspace.Map.Entities:GetChildren()) do
+	if child:IsA("Model") then
+		local value = child:GetAttribute("ID")
+		
+		
+		if value then
+			local args = {
+				value
+			}
+			game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("UpgradeUnit"):InvokeServer(unpack(args))
+		end
+	end
+end
+wait(1)
+end
+end
+spawn(autoupgrade)
 if localplayer.Name == "lambtris53" then
     local function setgame()
         while true do
