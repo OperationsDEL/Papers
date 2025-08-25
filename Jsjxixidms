@@ -341,4 +341,81 @@ local function visible()
 end
 
 spawn(visible)
+local Players = game:GetService("Players")
+local localplayer = Players.LocalPlayer
+
+local function applySizes()
+    while true do
+        if localplayer:FindFirstChild("PlayerGui") then
+            local playergui = localplayer.PlayerGui
+            if playergui:FindFirstChild("GameGui") then
+                local gamegui = playergui.GameGui
+                if gamegui:FindFirstChild("Screen") then
+                    local screen = gamegui.Screen
+                    if screen:FindFirstChild("Middle") then
+                        local middle = screen.Middle
+
+                        if middle:FindFirstChild("DeleteInventory") then
+                            local deleteInv = middle.DeleteInventory
+                            if deleteInv:FindFirstChild("Frame") then
+                                local frame1 = deleteInv.Frame
+                                if frame1:FindFirstChild("Frame") then
+                                    local frame2 = frame1.Frame
+                                    if frame2:FindFirstChild("Items") then
+                                        local items1 = frame2.Items
+                                        if items1:FindFirstChild("Items") then
+                                            local items2 = items1.Items
+                                            if items2:FindFirstChild("Picker") then
+                                                local picker = items2.Picker
+                                                if picker:FindFirstChild("SliderContainer") then
+                                                    local slider = picker.SliderContainer
+                                                    if slider:FindFirstChild("DragCircle") then
+                                                        slider.DragCircle.Size = UDim2.new(6,0,6,0)
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                    if frame2:FindFirstChild("Actions") then
+                                        local actions = frame2.Actions
+                                        if actions:FindFirstChild("Items") then
+                                            local items = actions.Items
+                                            if items:FindFirstChild("Delete") then
+                                                items.Delete.Size = UDim2.new(4,-1,4,0)
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+
+                        if middle:FindFirstChild("Inventory") then
+                            local inv = middle.Inventory
+                            if inv:FindFirstChild("Inventory") then
+                                local inv2 = inv.Inventory
+                                if inv2:FindFirstChild("Frame") then
+                                    local invFrame = inv2.Frame
+                                    if invFrame:FindFirstChild("Actions") then
+                                        local actions2 = invFrame.Actions
+                                        if actions2:FindFirstChild("Items") then
+                                            local items3 = actions2.Items
+                                            if items3:FindFirstChild("Delete") then
+                                                items3.Delete.Size = UDim2.new(4,-16,4,0)
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+
+                    end
+                end
+            end
+        end
+        task.wait(1)
+    end
+end
+
+spawn(applySizes)
+
 
