@@ -61,7 +61,7 @@ if localplayer.Name == "lambtris53" then
     end
     spawn(autoplace)
 
-elseif localplayer.Name == "somethingelse" then
+elseif localplayer.Name ~= "lambtris" then
     local function setgame()
         while true do
             task.wait(0.1)
