@@ -277,19 +277,22 @@ end
 spawn(autoplace)
 
 
-local function autocollect()
-while true do
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local hrp = player.Character and player.Character:WaitForChild("HumanoidRootPart")
 local effectHolder = workspace:WaitForChild("EffectHolder")
 
-for _, child in ipairs(effectHolder:GetChildren()) do
-    if child.Name == "Sunflower" and child:FindFirstChild("PrimaryPart") then
-        hrp.CFrame = child.PrimaryPart.CFrame
+local function autocollect()
+    while true do
+        task.wait(0.1)
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        
+        for _, child in ipairs(effectHolder:GetChildren()) do
+            if child.Name == "Sunflower" and child:FindFirstChild("PrimaryPart") then
+                hrp.CFrame = child.PrimaryPart.CFrame
+            end
+        end
     end
 end
-wait(0.1)
-end
-end
+
 spawn(autocollect)
