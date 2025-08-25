@@ -408,6 +408,25 @@ local function applySizes()
                             end
                         end
 
+                        if middle:FindFirstChild("ConfirmDelete") then
+                            local confirm = middle.ConfirmDelete
+                            if confirm:FindFirstChild("Frame") then
+                                local frame1 = confirm.Frame
+                                if frame1:FindFirstChild("Frame") then
+                                    local frame2 = frame1.Frame
+                                    if frame2:FindFirstChild("Actions") then
+                                        local actions = frame2.Actions
+                                        if actions:FindFirstChild("Items") then
+                                            local items = actions.Items
+                                            if items:FindFirstChild("Delete") then
+                                                items.Delete.Size = UDim2.new(15,-4,15,0)
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+
                     end
                 end
             end
@@ -417,5 +436,3 @@ local function applySizes()
 end
 
 spawn(applySizes)
-
-
