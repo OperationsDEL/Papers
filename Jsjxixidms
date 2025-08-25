@@ -299,3 +299,46 @@ local function autocollect()
 end
 
 spawn(autocollect)
+
+local function autoppen()
+
+while true do
+    local start = tick()
+    while tick() - start < 60 do
+        local args = {
+            [1] = "ub_sun",
+            [2] = 10
+        }
+        game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox:InvokeServer(unpack(args))
+        task.wait(0.01)
+    end
+    task.wait(30)
+end
+end
+spawn(autoopen)
+local Players = game:GetService("Players")
+local localplayer = Players.LocalPlayer
+
+local function visible()
+    while true do
+        if localplayer:FindFirstChild("PlayerGui") then
+            local playergui = localplayer.PlayerGui
+            if playergui:FindFirstChild("GameGui") then
+                local gamegui = playergui.GameGui
+                if gamegui:FindFirstChild("Screen") then
+                    local screen = gamegui.Screen
+                    if screen:FindFirstChild("Left") then
+                        local left = screen.Left
+                        if left:FindFirstChild("Sidebar") then
+                            left.Sidebar.Visible = true
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(1)
+    end
+end
+
+spawn(visible)
+
