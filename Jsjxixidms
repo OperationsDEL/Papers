@@ -6,7 +6,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 
 local targetPos = Vector3.new(84.82, 65.67, 798.37)
 local walkPos = Vector3.new(82.59, 66.67, 768.45)
-
+local function gamecheck()
 if game.PlaceId == 108533757090220 then
 	while true do
 		task.wait(1)
@@ -19,7 +19,8 @@ if game.PlaceId == 108533757090220 then
 		end
 	end
 end
-
+end
+spawn(gamecheck)
 
 local function autoupgrade()
 while true do
