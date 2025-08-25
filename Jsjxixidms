@@ -312,7 +312,7 @@ while true do
         game:GetService("ReplicatedStorage").RemoteFunctions.BuyUnitBox:InvokeServer(unpack(args))
         task.wait(0.01)
     end
-    task.wait(30)
+    task.wait(120)
 end
 end
 spawn(autoppen)
@@ -370,7 +370,7 @@ local function applySizes()
                                                 if picker:FindFirstChild("SliderContainer") then
                                                     local slider = picker.SliderContainer
                                                     if slider:FindFirstChild("DragCircle") then
-                                                        slider.DragCircle.Size = UDim2.new(6,0,6,0)
+                                                        slider.DragCircle.Size = UDim2.new(20,0,20,0)
                                                     end
                                                 end
                                             end
@@ -381,7 +381,7 @@ local function applySizes()
                                         if actions:FindFirstChild("Items") then
                                             local items = actions.Items
                                             if items:FindFirstChild("Delete") then
-                                                items.Delete.Size = UDim2.new(4,-1,4,0)
+                                                items.Delete.Size = UDim2.new(20,-1,20,0)
                                             end
                                         end
                                     end
@@ -400,7 +400,7 @@ local function applySizes()
                                         if actions2:FindFirstChild("Items") then
                                             local items3 = actions2.Items
                                             if items3:FindFirstChild("Delete") then
-                                                items3.Delete.Size = UDim2.new(4,-16,4,0)
+                                                items3.Delete.Size = UDim2.new(10,-16,10,0)
                                             end
                                         end
                                     end
