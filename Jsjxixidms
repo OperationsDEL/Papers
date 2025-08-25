@@ -419,7 +419,7 @@ local function applySizes()
                                         if actions:FindFirstChild("Items") then
                                             local items = actions.Items
                                             if items:FindFirstChild("Delete") then
-                                                items.Delete.Size = UDim2.new(15,-4,15,0)
+                                                items.Delete.Size = UDim2.new(100,-4,15,100)
                                             end
                                         end
                                     end
