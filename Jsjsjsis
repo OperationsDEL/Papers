@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
@@ -17,16 +18,18 @@ repeat
     task.wait(1)
 until (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude <= 200
 
-for _, part in ipairs(player.Character:GetDescendants()) do
-    if part:IsA("BasePart") then
-        part.CanCollide = false
-    end
-end
-
 local bv = Instance.new("BodyVelocity")
 bv.Velocity = Vector3.new(0, 0, 0)
 bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
 bv.Parent = hrp
+
+RunService.Stepped:Connect(function()
+    for _, part in ipairs(player.Character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+end)
 
 while true do
     local closest, dist
@@ -40,7 +43,7 @@ while true do
         end
     end
     if closest then
-        local time = dist / 26
+        local time = dist / 27
         local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = closest.CFrame})
         tween:Play()
         if (hrp.Position - closest.Position).Magnitude <= 20 then
