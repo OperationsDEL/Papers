@@ -6,17 +6,18 @@ local player = Players.LocalPlayer
 local hrp = player.Character:WaitForChild("HumanoidRootPart")
 local RemoteFolder = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
 
+local farming = false
+local depositing = false
+
 local function gotoVoid()
     repeat
         local args = {
             [1] = "aa67bc20-36c0-4a87-8560-4b0197509b7d",
             [2] = {
-                [1] = {
-                    ["rift"] = workspace.spawnPrefabs.Rifts.HubToVoid
-                }
+                [1] = {["rift"] = workspace.spawnPrefabs.Rifts.HubToVoid}
             }
         }
-        ReplicatedStorage.rbxts_include.node_modules:FindFirstChild("@rbxts").net.out._NetManaged:FindFirstChild("vnzYBeyivvjlaiqyQVtJjmGgKKnibnw/spejcsviPceqLpjk"):FireServer(unpack(args))
+        RemoteFolder:FindFirstChild("vnzYBeyivvjlaiqyQVtJjmGgKKnibnw/spejcsviPceqLpjk"):FireServer(unpack(args))
         task.wait(1)
     until (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude <= 200
 end
@@ -34,8 +35,6 @@ RunService.Stepped:Connect(function()
     end
 end)
 
-local farming = true
-
 local function farmLoop()
     while farming do
         local closest, dist
@@ -43,8 +42,7 @@ local function farmLoop()
             if block.Name == "voidParasite" and block:IsA("BasePart") then
                 local d = (hrp.Position - block.Position).Magnitude
                 if not dist or d < dist then
-                    closest = block
-                    dist = d
+                    closest, dist = block, d
                 end
             end
         end
@@ -52,6 +50,7 @@ local function farmLoop()
             local time = dist / 27
             local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = closest.CFrame})
             tween:Play()
+            tween.Completed:Wait()
             if (hrp.Position - closest.Position).Magnitude <= 20 then
                 local args = {
                     [1] = {
@@ -68,6 +67,7 @@ local function farmLoop()
 end
 
 local function depositSeeds(otherPlayer)
+    depositing = true
     local otherUserId = otherPlayer.UserId
     for _, island in ipairs(workspace.Islands:GetChildren()) do
         local owners = island:FindFirstChild("Owners")
@@ -78,33 +78,43 @@ local function depositSeeds(otherPlayer)
                         [1] = {["island"] = island}
                     }
                     RemoteFolder.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer(unpack(args))
+
                     local blocks = island:FindFirstChild("Blocks")
                     if blocks then
-                        for _, block in ipairs(blocks:GetChildren()) do
-                            if string.find(block.Name:lower(), "chest") then
-                                local backpack = player:FindFirstChild("Backpack")
-                                if backpack then
-                                    for _, item in ipairs(backpack:GetChildren()) do
-                                        if string.find(item.Name:lower(), "seed") then
-                                            local amount = 0
-                                            if item:FindFirstChild("Amount") then
-                                                amount = math.min(item.Amount.Value, 1250)
+                        while depositing do
+                            local backpack = player:FindFirstChild("Backpack")
+                            if backpack then
+                                local foundSeed = false
+                                for _, block in ipairs(blocks:GetChildren()) do
+                                    if string.find(block.Name:lower(), "chest") then
+                                        for _, item in ipairs(backpack:GetChildren()) do
+                                            if string.find(item.Name:lower(), "seed") then
+                                                foundSeed = true
+                                                local amount = 0
+                                                if item:FindFirstChild("Amount") then
+                                                    amount = math.min(item.Amount.Value, 1250)
+                                                end
+                                                RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
+                                                    ["chest"] = block,
+                                                    ["player_tracking_category"] = "join_from_web",
+                                                    ["amount"] = amount,
+                                                    ["tool"] = item,
+                                                    ["action"] = "deposit"
+                                                })
+                                                task.wait(0.1)
                                             end
-                                            RemoteFolder.CLIENT_CHEST_TRANSACTION:InvokeServer({
-                                                ["chest"] = block,
-                                                ["player_tracking_category"] = "join_from_web",
-                                                ["amount"] = amount,
-                                                ["tool"] = item,
-                                                ["action"] = "deposit"
-                                            })
-                                            task.wait(0.1)
                                         end
                                     end
                                 end
+                                if not foundSeed then
+                                    task.wait(1)
+                                end
+                            else
+                                task.wait(1)
                             end
                         end
                     end
-                    break
+                    return
                 end
             end
         end
@@ -131,12 +141,10 @@ end)
 
 Players.PlayerRemoving:Connect(function(p)
     if p ~= player then
+        depositing = false
         task.wait(1)
         startCycle()
     end
 end)
 
 startCycle()
-
-
-
