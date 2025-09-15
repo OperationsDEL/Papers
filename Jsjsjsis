@@ -42,7 +42,7 @@ local function gotoVoid()
     local hubToVoid = workspace:FindFirstChild("spawnPrefabs") and workspace.spawnPrefabs:FindFirstChild("Rifts") and workspace.spawnPrefabs.Rifts:FindFirstChild("HubToVoid")
     local remote = NetManagedRoot:FindFirstChild("vnzYBeyivvjlaiqyQVtJjmGgKKnibnw/spejcsviPceqLpjk")
     if not hubToVoid or not remote then return end
-    while (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude > 2000 do
+    repeat
         local args = {
             [1] = "aa67bc20-36c0-4a87-8560-4b0197509b7d",
             [2] = {
@@ -52,7 +52,7 @@ local function gotoVoid()
         pcall(function() remote:FireServer(unpack(args)) end)
         task.wait(5)
         _, hrp = getCharAndHRP()
-    end
+    until (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude <= 2000
 end
 
 local function getClosestVoid()
@@ -192,24 +192,26 @@ end
 spawn(function()
     while true do
         local plist = Players:GetPlayers()
-        local otherPlayer = nil
-        for _, p in ipairs(plist) do
-            if p ~= player then
-                otherPlayer = p
-                break
-            end
-        end
-        if not otherPlayer then
+        if #plist == 1 then
             Depositing = false
             stopFarming()
             gotoVoid()
             startFarming()
-        else
+        elseif #plist >= 2 then
             stopFarming()
-            task.wait(0.5)
-            depositSeedsForPlayer(otherPlayer)
-            task.wait(1)
+wait(5)
+            local otherPlayer = nil
+            for _, p in ipairs(plist) do
+                if p ~= player then
+                    otherPlayer = p
+                    break
+                end
+            end
+            if otherPlayer then
+                depositSeedsForPlayer(otherPlayer)
+            end
         end
         task.wait(1)
     end
 end)
+
