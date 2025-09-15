@@ -3,42 +3,31 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
-
-local NetManagedRoot = ReplicatedStorage:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts").net.out._NetManaged
-
-local Farming = false
-local Depositing = false
-local farmThread = nil
-
-local function getCharAndHRP()
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:FindFirstChild("HumanoidRootPart") or char:WaitForChild("HumanoidRootPart")
-    return char, hrp
-end
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+wait(5)
+local bv = Instance.new("BodyVelocity")
+bv.Name = "AutoTPVelocity"
+bv.Velocity = Vector3.new(0,0,0)
+bv.MaxForce = Vector3.new(1e9,1e9,1e9)
+bv.Parent = hrp
 
 RunService.Stepped:Connect(function()
-    local char = player.Character
-    if not char then return end
-    for _, part in ipairs(char:GetDescendants()) do
+    local c = player.Character
+    if not c then return end
+    for _, part in ipairs(c:GetDescendants()) do
         if part:IsA("BasePart") then
             part.CanCollide = false
         end
     end
 end)
 
-do
-    local _, hrp = getCharAndHRP()
-    if hrp and not hrp:FindFirstChild("AutoTPVelocity") then
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "AutoTPVelocity"
-        bv.Velocity = Vector3.new(0,0,0)
-        bv.MaxForce = Vector3.new(1e9,1e9,1e9)
-        bv.Parent = hrp
-    end
-end
+local NetManagedRoot = ReplicatedStorage:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts").net.out._NetManaged
+local HarvestRemote = NetManagedRoot:FindFirstChild("CLIENT_HARVEST_CROP_REQUEST")
+local ChestRemote = NetManagedRoot:FindFirstChild("CLIENT_CHEST_TRANSACTION")
+local VisitRemote = NetManagedRoot:FindFirstChild("CLIENT_VISIT_ISLAND_REQUEST")
 
-local function gotoVoid()
-    local _, hrp = getCharAndHRP()
+local function TeleportToVoid()
     local hubToVoid = workspace:FindFirstChild("spawnPrefabs") and workspace.spawnPrefabs:FindFirstChild("Rifts") and workspace.spawnPrefabs.Rifts:FindFirstChild("HubToVoid")
     local remote = NetManagedRoot:FindFirstChild("vnzYBeyivvjlaiqyQVtJjmGgKKnibnw/spejcsviPceqLpjk")
     if not hubToVoid or not remote then return end
@@ -49,102 +38,57 @@ local function gotoVoid()
                 [1] = { rift = hubToVoid }
             }
         }
-        pcall(function() remote:FireServer(unpack(args)) end)
-        task.wait(5)
-        _, hrp = getCharAndHRP()
-    until (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude <= 2000
+        remote:FireServer(unpack(args))
+        task.wait(1)
+    until (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude <= 200
+    task.wait()
 end
 
-local function getClosestVoid()
-    local _, hrp = getCharAndHRP()
-    local best, bestDist = nil, math.huge
-    local blocks = workspace:FindFirstChild("WildernessBlocks")
-    if not blocks then return nil end
-    for _, child in ipairs(blocks:GetChildren()) do
-        if child:IsA("BasePart") and child.Name == "voidParasite" then
-            local d = (hrp.Position - child.Position).Magnitude
-            if d < bestDist then
-                bestDist = d
-                best = child
-            end
-        end
-    end
-    return best, bestDist
-end
-
-local HarvestRemote = NetManagedRoot:FindFirstChild("CLIENT_HARVEST_CROP_REQUEST")
-local ChestRemote = NetManagedRoot:FindFirstChild("CLIENT_CHEST_TRANSACTION")
-local VisitRemote = NetManagedRoot:FindFirstChild("CLIENT_VISIT_ISLAND_REQUEST")
-
-local function tweenToCFrame(cf, speed)
-    local _, hrp = getCharAndHRP()
-    if not hrp or not cf then return end
-    local dist = (hrp.Position - cf.Position).Magnitude
-    local duration = math.max(0.01, dist / (speed or 25))
-    local tw = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = cf})
-    tw:Play()
-end
-
-local function farmLoop()
-    while Farming do
-        local closest = getClosestVoid()
-        if closest then
-            pcall(function() tweenToCFrame(closest.CFrame, 27) end)
-            local _, hrp = getCharAndHRP()
-            if (hrp.Position - closest.Position).Magnitude <= 20 then
-                if HarvestRemote then
-                    local args = {
-                        [1] = {
-                            ["player"] = player,
-                            ["model"] = closest,
-                            ["tukiqepvhyyBj"] = "\7\240\159\164\163\240\159\164\161\7\n\7\n\7\nFOenfsq",
-                        }
-                    }
-                    pcall(function() HarvestRemote:InvokeServer(unpack(args)) end)
-                end
-            end
-        else
-            task.wait(0.5)
-        end
-        task.wait(0.1)
-    end
-end
-
-local function TeleportToVoidParasite()
-    local _, hrp = getCharAndHRP()
+local function TeleportToParasite()
     local blocks = workspace:FindFirstChild("WildernessBlocks")
     if not blocks then return end
-    local best, bestDist = nil, math.huge
+    local closest, closestDist = nil, math.huge
     for _, child in ipairs(blocks:GetChildren()) do
         if child:IsA("BasePart") and child.Name == "voidParasite" then
             local d = (hrp.Position - child.Position).Magnitude
-            if d < bestDist then
-                bestDist = d
-                best = child
+            if d < closestDist then
+                closestDist = d
+                closest = child
             end
         end
     end
-    if best then
-        pcall(function() tweenToCFrame(best.CFrame, 25) end)
+    if closest then
+        local dist = (hrp.Position - closest.Position).Magnitude
+        local duration = math.max(0.01, dist / 25)
+        local tween = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = closest.CFrame})
+        tween:Play()
+        if (hrp.Position - closest.Position).Magnitude <= 20 then
+            local args = {
+                [1] = {
+                    ["player"] = player,
+                    ["model"] = closest,
+                    ["tukiqepvhyyBj"] = "\7\240\159\164\163\240\159\164\161\7\n\7\n\7\nFOenfsq",
+                }
+            }
+            HarvestRemote:InvokeServer(unpack(args))
+        end
     end
 end
 
-local function depositSeedsForPlayer(otherPlayer)
-    Depositing = true
+local function DepositingScript(otherPlayer)
     local otherUserId = otherPlayer.UserId
     local islands = workspace:FindFirstChild("Islands")
-    if not islands then Depositing = false return end
+    if not islands then return end
     for _, island in ipairs(islands:GetChildren()) do
-        if not Depositing then break end
         local owners = island:FindFirstChild("Owners")
         if owners then
             for _, val in ipairs(owners:GetChildren()) do
                 if val:IsA("NumberValue") and val.Value == otherUserId then
                     local visitArgs = { [1] = { island = island } }
-                    if VisitRemote then pcall(function() VisitRemote:InvokeServer(unpack(visitArgs)) end) end
-                    task.wait(0.5)
+                    if VisitRemote then VisitRemote:InvokeServer(unpack(visitArgs)) end
+                    task.wait(1)
                     local blocks = island:FindFirstChild("Blocks")
-                    if not blocks then Depositing = false return end
+                    if not blocks then return end
                     local chestBlock = nil
                     for _, b in ipairs(blocks:GetChildren()) do
                         if string.find(b.Name:lower(), "chest") then
@@ -152,88 +96,57 @@ local function depositSeedsForPlayer(otherPlayer)
                             break
                         end
                     end
-                    if not chestBlock then Depositing = false return end
-                    local _, hrp = getCharAndHRP()
+                    if not chestBlock then return end
                     repeat
-                        if VisitRemote then pcall(function() VisitRemote:InvokeServer(unpack(visitArgs)) end) end
+                        if VisitRemote then VisitRemote:InvokeServer(unpack(visitArgs)) end
                         task.wait(1)
-                        _, hrp = getCharAndHRP()
-                    until not Depositing or (hrp.Position - chestBlock.Position).Magnitude <= 200
-                    while Depositing do
-                        local backpack = player:FindFirstChild("Backpack")
-                        if not backpack then
-                            task.wait(1)
-                        else
-                            local foundSeed = false
-                            for _, item in ipairs(backpack:GetChildren()) do
-                                if string.find(item.Name:lower(), "seed") then
-                                    foundSeed = true
-                                    local amount = 0
-                                    if item:FindFirstChild("Amount") then amount = math.min(item.Amount.Value, 1250) end
-                                    if ChestRemote then
-                                        pcall(function()
-                                            ChestRemote:InvokeServer({
-                                                chest = chestBlock,
-                                                player_tracking_category = "join_from_web",
-                                                amount = amount,
-                                                tool = item,
-                                                action = "deposit"
-                                            })
-                                        end)
-                                    end
-                                    task.wait(0.15)
-                                end
+                    until (hrp.Position - chestBlock.Position).Magnitude <= 200
+                    local backpack = player:FindFirstChild("Backpack")
+                    if not backpack then return end
+                    for _, item in ipairs(backpack:GetChildren()) do
+                        if string.find(item.Name:lower(), "seed") then
+                            local amount = 0
+                            if item:FindFirstChild("Amount") then amount = math.min(item.Amount.Value, 1250) end
+                            if ChestRemote then
+                                ChestRemote:InvokeServer({
+                                    chest = chestBlock,
+                                    player_tracking_category = "join_from_web",
+                                    amount = amount,
+                                    tool = item,
+                                    action = "deposit"
+                                })
                             end
-                            if not foundSeed then break end
+                            task.wait(0.5)
                         end
-                        task.wait(0.2)
                     end
-                    Depositing = false
                     return
                 end
             end
         end
     end
-    Depositing = false
 end
 
-local function stopFarming()
-    Farming = false
-    farmThread = nil
+local function playersinserver()
+    return #Players:GetPlayers()
 end
 
-local function startFarming()
-    if Farming then return end
-    Farming = true
-    farmThread = coroutine.create(farmLoop)
-    coroutine.resume(farmThread)
-end
-
-spawn(function()
-    while true do
+while true do
+    if playersinserver() == 1 then
+        TeleportToVoid()
+        task.wait()
+        repeat
+            TeleportToParasite()
+            task.wait()
+        until playersinserver() > 1
+        task.wait()
+    elseif playersinserver() > 1 then
         local plist = Players:GetPlayers()
-        if #plist == 1 then
-            Depositing = false
-            stopFarming()
-            gotoVoid()
-            startFarming()
-            repeat
-                spawn(TeleportToVoidParasite)
-                task.wait(0.5)
-            until #Players:GetPlayers() > 1
-        elseif #plist > 1 then
-            stopFarming()
-            local otherPlayer = nil
-            for _, p in ipairs(plist) do
-                if p ~= player then
-                    otherPlayer = p
-                    break
-                end
-            end
-            if otherPlayer then
-                depositSeedsForPlayer(otherPlayer)
+        for _, p in ipairs(plist) do
+            if p ~= player then
+                DepositingScript(p)
+                break
             end
         end
-        task.wait(1)
     end
-end)
+    task.wait()
+end
