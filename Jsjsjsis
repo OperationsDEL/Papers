@@ -78,6 +78,7 @@ local VisitRemote = NetManagedRoot:FindFirstChild("CLIENT_VISIT_ISLAND_REQUEST")
 
 local function tweenToCFrame(cf, speed)
     local _, hrp = getCharAndHRP()
+    if not hrp or not cf then return end
     local dist = (hrp.Position - cf.Position).Magnitude
     local duration = math.max(0.01, dist / (speed or 25))
     local tw = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = cf})
@@ -106,6 +107,25 @@ local function farmLoop()
             task.wait(0.5)
         end
         task.wait(0.1)
+    end
+end
+
+local function TeleportToVoidParasite()
+    local _, hrp = getCharAndHRP()
+    local blocks = workspace:FindFirstChild("WildernessBlocks")
+    if not blocks then return end
+    local best, bestDist = nil, math.huge
+    for _, child in ipairs(blocks:GetChildren()) do
+        if child:IsA("BasePart") and child.Name == "voidParasite" then
+            local d = (hrp.Position - child.Position).Magnitude
+            if d < bestDist then
+                bestDist = d
+                best = child
+            end
+        end
+    end
+    if best then
+        pcall(function() tweenToCFrame(best.CFrame, 25) end)
     end
 end
 
@@ -197,9 +217,12 @@ spawn(function()
             stopFarming()
             gotoVoid()
             startFarming()
-        elseif #plist >= 2 then
+            repeat
+                spawn(TeleportToVoidParasite)
+                task.wait(0.5)
+            until #Players:GetPlayers() > 1
+        elseif #plist > 1 then
             stopFarming()
-wait(5)
             local otherPlayer = nil
             for _, p in ipairs(plist) do
                 if p ~= player then
@@ -214,4 +237,3 @@ wait(5)
         task.wait(1)
     end
 end)
-
