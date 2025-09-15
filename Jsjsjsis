@@ -78,10 +78,10 @@ local VisitRemote = NetManagedRoot:FindFirstChild("CLIENT_VISIT_ISLAND_REQUEST")
 local function tweenToCFrame(cf, speed)
     local _, hrp = getCharAndHRP()
     local dist = (hrp.Position - cf.Position).Magnitude
-    local duration = math.max(0.01, dist / (speed or 27))
+    local duration = math.max(0.01, dist / (speed or 25))
     local tw = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = cf})
     tw:Play()
-    tw.Completed:Wait()
+    
 end
 
 local function farmLoop()
