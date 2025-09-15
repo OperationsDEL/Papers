@@ -42,7 +42,7 @@ local function gotoVoid()
     local hubToVoid = workspace:FindFirstChild("spawnPrefabs") and workspace.spawnPrefabs:FindFirstChild("Rifts") and workspace.spawnPrefabs.Rifts:FindFirstChild("HubToVoid")
     local remote = NetManagedRoot:FindFirstChild("vnzYBeyivvjlaiqyQVtJjmGgKKnibnw/spejcsviPceqLpjk")
     if not hubToVoid or not remote then return end
-    repeat
+    while (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude > 400 do
         local args = {
             [1] = "aa67bc20-36c0-4a87-8560-4b0197509b7d",
             [2] = {
@@ -51,7 +51,8 @@ local function gotoVoid()
         }
         pcall(function() remote:FireServer(unpack(args)) end)
         task.wait(5)
-    until (hrp.Position - Vector3.new(-10167, 110, 10298)).Magnitude <= 400
+        _, hrp = getCharAndHRP()
+    end
 end
 
 local function getClosestVoid()
@@ -81,7 +82,6 @@ local function tweenToCFrame(cf, speed)
     local duration = math.max(0.01, dist / (speed or 25))
     local tw = TweenService:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = cf})
     tw:Play()
-    
 end
 
 local function farmLoop()
