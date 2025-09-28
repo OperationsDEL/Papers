@@ -209,7 +209,6 @@ local function AutoTeleport()
                 local time = dist / 20
                 local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
                 tween:Play()
-                repeat task.wait(0.1) until (hrp.Position - pos).Magnitude <= 10 or not target.Parent
                 tween.Completed:Wait()
             end
         end
