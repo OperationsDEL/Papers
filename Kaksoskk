@@ -174,6 +174,12 @@ spawn(AutoReplant)
 
 local function AutoTeleport()
     local choices = {"pineapple", "totemPineapple"}
+    local Speed = 20
+
+    local function GetTime(Distance, Speed)
+        return Distance / Speed
+    end
+
     while true do
         task.wait(0.1)
         if not stop and workspace.Islands:FindFirstChild(slimeisland) and not officalcheck then
@@ -187,27 +193,28 @@ local function AutoTeleport()
             end
             if #matching > 0 then
                 local target = matching[math.random(1, #matching)]
-                local pos = target.Position
-                local dist = (pos - hrp.Position).Magnitude
-                local time = dist / 20
-                local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
-                tween:Play()
-                
-                local startTime = tick()
-                repeat 
-                    task.wait(0.1)
-                until (hrp.Position - pos).Magnitude <= 10 
-                    or not target.Parent 
-                    or tick() - startTime >= 10
+                if target and target.Parent then
+                    local pos = target.Position
+                    local dist = (pos - hrp.Position).Magnitude
+                    local time = GetTime(dist, Speed)
+                    local CFrameEnd = CFrame.new(pos)
 
-                tween:Cancel()
-                tween.Completed:Wait()
+                    local tween = game:GetService("TweenService"):Create(
+                        hrp,
+                        TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0),
+                        {CFrame = CFrameEnd}
+                    )
+
+                    tween:Play()
+                    tween.Completed:Wait()
+                end
             end
         end
     end
 end
 
 spawn(AutoTeleport)
+
 
 
 local function isNearAnyBlockInIsland(islandName, radius)
