@@ -294,7 +294,7 @@ spawn(PineappleDeposit)
 
 local function Sickle()
 while true do
-task.wait()
+task.wait(0.3)
 if not stop and workspace.Islands:FindFirstChild(slimeisland) then
 local model = workspace.Islands:FindFirstChild(slimeisland)
 local blocks = model:FindFirstChild("Blocks")
