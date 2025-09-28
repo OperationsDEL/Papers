@@ -4,6 +4,11 @@ end
 spawn(antiafk)
 
 
+
+
+
+
+
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -82,7 +87,7 @@ while true do
 wait()
 if workspace.Islands:FindFirstChild(slimeisland) then
 for _, block in ipairs(getBlocksOfIsland(slimeisland)) do
-if block.Name == "totemPineapple" and hrp and (block.Position - hrp.Position).Magnitude <= 50 then
+if block.Name == "totemPineapple" and hrp and (block.Position - hrp.Position).Magnitude <= 100 then
 local workerContents = block:FindFirstChild("WorkerContents")
 if workerContents then
 for _, item in ipairs(workerContents:GetChildren()) do
@@ -102,15 +107,14 @@ end
 end
 end
 end
-spawn(AutoCollectFromTotems)
 
 local function AutoHarvest()
 while true do
-wait()
+wait(0.1)
 if workspace.Islands:FindFirstChild(slimeisland) then
 local leeks = {}
 for _, v in pairs(getBlocksOfIsland(slimeisland)) do
-if v.Name == "pineapple" and hrp and (v.Position - hrp.Position).Magnitude <= 50 and v:FindFirstChild("stage-3") then
+if v.Name == "pineapple" and hrp and (v.Position - hrp.Position).Magnitude <= 60 and v:FindFirstChild("stage-3") then
 table.insert(leeks, v)
 end
 end
@@ -133,95 +137,64 @@ end
 end
 spawn(AutoHarvest)
 
-local SoilList = {}
-
-local function Soiltable()
-	while true do
-		SoilList = {}
-		if workspace.Islands:FindFirstChild(slimeisland) then
-			for _, soil in pairs(getBlocksOfIsland(slimeisland)) do
-				if soil.Name == "soil" and hrp and (soil.Position - hrp.Position).Magnitude <= 50 then
-					table.insert(SoilList, soil)
-				end
-			end
-		end
-		task.wait(1)
-	end
-end
-
-
-local function AutoReplant()
-	while true do
-		wait()
-		if #SoilList > 0 then
-			local index = math.random(1, #SoilList)
-			local soil = table.remove(SoilList, index)
-			if soil and soil.Parent then
-				local adjustedPosition = soil.Position + Vector3.new(0, 3, 0)
-				local orientation = soil.CFrame - soil.CFrame.Position
-				local args2 = {
-					[1] = {
-						["upperBlock"] = false,
-						["cframe"] = CFrame.new(adjustedPosition) * CFrame.Angles(orientation:ToEulerAnglesXYZ()),
-						["foaouddukLJgsWeqarxxCuFoWLvf"] = "\7\240\159\164\163\240\159\164\161\7\n\7\n\7\nUaEGjnxjhvDnxhZlbHrbjiAonkqdgm",
-						["blockType"] = "pineapple"
-					}
-				}
-				NetManaged.CLIENT_BLOCK_PLACE_REQUEST:InvokeServer(unpack(args2))
-			end
-		end
-		wait()
-	end
-end
-
-spawn(Soiltable)
-spawn(AutoReplant)
-spawn(AutoReplant)
-
-local function AutoTeleport()
-    local choices = {"pineapple", "totemPineapple"}
-    local Speed = 20
-
-    local function GetTime(Distance, Speed)
-        return Distance / Speed
-    end
-
+local function autoreplant()
     while true do
-        task.wait(0.1)
-        if not stop and workspace.Islands:FindFirstChild(slimeisland) and not officalcheck then
-            local pick = choices[math.random(1, #choices)]
-            local blocks = getBlocksOfIsland(slimeisland)
-            local matching = {}
-            for _, b in ipairs(blocks) do
-                if b.Name == pick then
-                    table.insert(matching, b)
-                end
-            end
-            if #matching > 0 then
-                local target = matching[math.random(1, #matching)]
-                if target and target.Parent then
-                    local pos = target.Position
-                    local dist = (pos - hrp.Position).Magnitude
-                    local time = GetTime(dist, Speed)
-                    local CFrameEnd = CFrame.new(pos)
-
-                    local tween = game:GetService("TweenService"):Create(
-                        hrp,
-                        TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0),
-                        {CFrame = CFrameEnd}
-                    )
-
-                    tween:Play()
-                    tween.Completed:Wait()
+        wait()
+        if stop == false then
+            local island = workspace.Islands:FindFirstChild(slimeisland)
+            if island and island:FindFirstChild("Blocks") then
+                for _, soil in ipairs(island.Blocks:GetChildren()) do
+                    if soil.Name == "soil" and hrp and (soil.Position - hrp.Position).Magnitude <= 100 then
+                        local adjustedPosition = soil.Position + Vector3.new(0, 3, 0)
+                        local orientation = soil.CFrame - soil.CFrame.Position
+                        local args2 = {
+                            [1] = {
+                                ["upperBlock"] = false,
+                                ["cframe"] = CFrame.new(adjustedPosition) * CFrame.Angles(orientation:ToEulerAnglesXYZ()),
+                                ["foaouddukLJgsWeqarxxCuFoWLvf"] = "\7\240\159\164\163\240\159\164\161\7\n\7\n\7\nUaEGjnxjhvDnxhZlbHrbjiAonkqdgm",
+                                ["blockType"] = "pineapple"
+                            }
+                        }
+                        NetManaged.CLIENT_BLOCK_PLACE_REQUEST:InvokeServer(unpack(args2))
+                    end
                 end
             end
         end
     end
 end
 
+spawn(autoreplant)
 
 
 
+
+local function AutoTeleport()
+local choices = {"pineapple", "totemPineapple"}
+while true do
+task.wait(0.1)
+if not stop and workspace.Islands:FindFirstChild(slimeisland) and not officalcheck then
+local pick = choices[math.random(1, #choices)]
+local blocks = getBlocksOfIsland(slimeisland)
+local matching = {}
+for _, b in ipairs(blocks) do
+if b.Name == pick then
+table.insert(matching, b)
+end
+end
+if #matching > 0 then
+local target = matching[math.random(1, #matching)]
+local pos = target.Position
+local dist = (pos - hrp.Position).Magnitude
+local time = dist / 20
+local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+tween:Play()
+repeat task.wait(0.1) until (hrp.Position - pos).Magnitude <= 10 or not target.Parent
+tween.Completed:Wait()
+end
+end
+end
+end
+spawn(AutoTeleport)
 
 local function isNearAnyBlockInIsland(islandName, radius)
 local isl = workspace.Islands:FindFirstChild(islandName)
@@ -300,7 +273,7 @@ spawn(PineappleDeposit)
 
 local function Sickle()
 while true do
-task.wait(0.3)
+wait(0.2)
 if not stop and workspace.Islands:FindFirstChild(slimeisland) then
 local model = workspace.Islands:FindFirstChild(slimeisland)
 local blocks = model:FindFirstChild("Blocks")
@@ -342,7 +315,10 @@ officalcheck = false
 stop = false
 spawn(AutoCollectFromTotems)
 spawn(AutoHarvest)
-spawn(AutoReplant)
+
+spawn(autoreplant)
+spawn(autoreplant)
+spawn(autoreplant)
 spawn(AutoTeleport)
 else
 repeat task.wait(1) until slimeisland ~= "island"
@@ -355,7 +331,11 @@ officalcheck = false
 stop = false
 spawn(AutoCollectFromTotems)
 spawn(AutoHarvest)
-spawn(AutoReplant)
+
+spawn(autoreplant)
+spawn(autoreplant)
+spawn(autoreplant)
+
 spawn(AutoTeleport)
 end
 end
