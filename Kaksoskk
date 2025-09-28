@@ -215,7 +215,7 @@ local function AutoTeleport()
     end
 end
 
-spawn(AutoTeleport)
+
 
 
 
