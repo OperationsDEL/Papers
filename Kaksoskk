@@ -5,6 +5,27 @@ spawn(antiafk)
 
 
 
+local function playermodifier()
+    while true do
+        wait(5)
+        local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            if not hrp:FindFirstChild("BodyVelocity") then
+                local bv = Instance.new("BodyVelocity")
+                bv.Velocity = Vector3.new(0, 0, 0)
+                bv.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+                bv.Parent = hrp
+            end
+            for _, part in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end
+end
+
+spawn(playermodifier)
 
 
 
@@ -114,7 +135,7 @@ wait(0.1)
 if workspace.Islands:FindFirstChild(slimeisland) then
 local leeks = {}
 for _, v in pairs(getBlocksOfIsland(slimeisland)) do
-if v.Name == "pineapple" and hrp and (v.Position - hrp.Position).Magnitude <= 60 and v:FindFirstChild("stage-3") then
+if v.Name == "pineapple" and hrp and (v.Position - hrp.Position).Magnitude <= 50 and v:FindFirstChild("stage-3") then
 table.insert(leeks, v)
 end
 end
@@ -144,7 +165,7 @@ local function autoreplant()
             local island = workspace.Islands:FindFirstChild(slimeisland)
             if island and island:FindFirstChild("Blocks") then
                 for _, soil in ipairs(island.Blocks:GetChildren()) do
-                    if soil.Name == "soil" and hrp and (soil.Position - hrp.Position).Magnitude <= 100 then
+                    if soil.Name == "soil" and hrp and (soil.Position - hrp.Position).Magnitude <= 50 then
                         local adjustedPosition = soil.Position + Vector3.new(0, 3, 0)
                         local orientation = soil.CFrame - soil.CFrame.Position
                         local args2 = {
@@ -165,36 +186,41 @@ end
 
 spawn(autoreplant)
 
-
-
-
 local function AutoTeleport()
-local choices = {"pineapple", "totemPineapple"}
-while true do
-task.wait(0.1)
-if not stop and workspace.Islands:FindFirstChild(slimeisland) and not officalcheck then
-local pick = choices[math.random(1, #choices)]
-local blocks = getBlocksOfIsland(slimeisland)
-local matching = {}
-for _, b in ipairs(blocks) do
-if b.Name == pick then
-table.insert(matching, b)
+    local choices = {"pineapple", "totemPineapple"}
+    while true do
+        task.wait(0.1)
+        if not stop and workspace.Islands:FindFirstChild(slimeisland) and not officalcheck then
+            local pick = choices[math.random(1, #choices)]
+            local blocks = getBlocksOfIsland(slimeisland)
+            local matching = {}
+            for _, b in ipairs(blocks) do
+                if b.Name == pick then
+                    table.insert(matching, b)
+                end
+            end
+            if #matching > 0 then
+                local target = matching[math.random(1, #matching)]
+                local pos = target.Position
+                if target.Name == "totemPineapple" then
+                    pos = pos + Vector3.new(0, 0, 10)
+                end
+                local dist = (pos - hrp.Position).Magnitude
+                local time = dist / 20
+                local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+                tween:Play()
+                repeat task.wait(0.1) until (hrp.Position - pos).Magnitude <= 10 or not target.Parent
+                tween.Completed:Wait()
+            end
+        end
+    end
 end
-end
-if #matching > 0 then
-local target = matching[math.random(1, #matching)]
-local pos = target.Position
-local dist = (pos - hrp.Position).Magnitude
-local time = dist / 20
-local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
-tween:Play()
-repeat task.wait(0.1) until (hrp.Position - pos).Magnitude <= 10 or not target.Parent
-tween.Completed:Wait()
-end
-end
-end
-end
+
 spawn(AutoTeleport)
+
+
+
+
 
 local function isNearAnyBlockInIsland(islandName, radius)
 local isl = workspace.Islands:FindFirstChild(islandName)
