@@ -172,34 +172,43 @@ spawn(Soiltable)
 spawn(AutoReplant)
 spawn(AutoReplant)
 
-
 local function AutoTeleport()
-local choices = {"pineapple", "totemPineapple"}
-while true do
-task.wait(0.1)
-if not stop and workspace.Islands:FindFirstChild(slimeisland) and not officalcheck then
-local pick = choices[math.random(1, #choices)]
-local blocks = getBlocksOfIsland(slimeisland)
-local matching = {}
-for _, b in ipairs(blocks) do
-if b.Name == pick then
-table.insert(matching, b)
+    local choices = {"pineapple", "totemPineapple"}
+    while true do
+        task.wait(0.1)
+        if not stop and workspace.Islands:FindFirstChild(slimeisland) and not officalcheck then
+            local pick = choices[math.random(1, #choices)]
+            local blocks = getBlocksOfIsland(slimeisland)
+            local matching = {}
+            for _, b in ipairs(blocks) do
+                if b.Name == pick then
+                    table.insert(matching, b)
+                end
+            end
+            if #matching > 0 then
+                local target = matching[math.random(1, #matching)]
+                local pos = target.Position
+                local dist = (pos - hrp.Position).Magnitude
+                local time = dist / 20
+                local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
+                tween:Play()
+                
+                local startTime = tick()
+                repeat 
+                    task.wait(0.1)
+                until (hrp.Position - pos).Magnitude <= 10 
+                    or not target.Parent 
+                    or tick() - startTime >= 10
+
+                tween:Cancel()
+                tween.Completed:Wait()
+            end
+        end
+    end
 end
-end
-if #matching > 0 then
-local target = matching[math.random(1, #matching)]
-local pos = target.Position
-local dist = (pos - hrp.Position).Magnitude
-local time = dist / 20
-local tween = TweenService:Create(hrp, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = CFrame.new(pos)})
-tween:Play()
-repeat task.wait(0.1) until (hrp.Position - pos).Magnitude <= 10 or not target.Parent
-tween.Completed:Wait()
-end
-end
-end
-end
+
 spawn(AutoTeleport)
+
 
 local function isNearAnyBlockInIsland(islandName, radius)
 local isl = workspace.Islands:FindFirstChild(islandName)
