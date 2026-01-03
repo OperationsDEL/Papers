@@ -1,3 +1,9 @@
+
+
+
+
+
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
@@ -21,15 +27,15 @@ end
 local Button1 = createButton("Button1", UDim2.new(0,20,0,20))
 local Button2 = createButton("Button2", UDim2.new(0,110,0,20))
 local Button3 = createButton("Button3", UDim2.new(0,200,0,20))
+local Button4 = createButton("Button4", UDim2.new(0,200,0,70))
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Net = ReplicatedStorage.rbxts_include.node_modules:FindFirstChild("@rbxts").net.out._NetManaged
 
 local WorkspaceIslands = workspace:WaitForChild("Islands")
-local Islands = nil
 
 local MaxCoinsPerMachine = 5000000000
-local active = {Button1=false, Button2=false, Button3=false}
+local active = {Button1=false, Button2=false, Button3=false, Button4=false}
 
 local function toggleButton(button)
 	active[button.Name] = not active[button.Name]
@@ -63,7 +69,7 @@ Button2.MouseButton1Click:Connect(function()
 end)
 
 local function getClosestIsland()
-	local closestBlock = nil
+	local closestBlock
 	local closestDist = math.huge
 	for _, island in ipairs(WorkspaceIslands:GetChildren()) do
 		local blocks = island:FindFirstChild("Blocks")
@@ -84,13 +90,13 @@ local function getClosestIsland()
 	end
 end
 
-local function getClosestVending(island)
+local function getClosestVending(island, name)
 	local blocks = island and island:FindFirstChild("Blocks")
 	if not blocks then return end
-	local closest = nil
+	local closest
 	local dist = math.huge
 	for _, block in ipairs(blocks:GetChildren()) do
-		if block.Name == "vendingMachine" and block:FindFirstChild("CoinBalance") then
+		if block.Name == name and block:FindFirstChild("CoinBalance") then
 			if block.CoinBalance.Value < MaxCoinsPerMachine then
 				local d = (block.Position - HumanoidRootPart.Position).Magnitude
 				if d < dist then
@@ -121,17 +127,44 @@ local function fillVendingMachine(vendingMachine, amount)
 	Net:FindFirstChild("vdejLrsuUtHdxgMnamqcwrddgseyltmjnutxAhuAdt/uabQAzmslluxa"):FireServer({[1]={vendingMachine=vendingMachine}})
 end
 
+local Island3
+local Island4
+
 Button3.MouseButton1Click:Connect(function()
 	toggleButton(Button3)
 	if active.Button3 then
-		Islands = getClosestIsland()
+		Island3 = getClosestIsland()
 	end
 	task.spawn(function()
 		while active.Button3 do
-			if not Islands then
-				Islands = getClosestIsland()
+			if not Island3 then
+				Island3 = getClosestIsland()
 			end
-			local vending = getClosestVending(Islands)
+			local vending = getClosestVending(Island3,"vendingMachine")
+			if vending then
+				local bal = vending.CoinBalance.Value
+				if bal < 4500000000 then
+					fillVendingMachine(vending,1500000000)
+				elseif bal < 5000000000 then
+					fillVendingMachine(vending,500000000)
+				end
+			end
+			task.wait()
+		end
+	end)
+end)
+
+Button4.MouseButton1Click:Connect(function()
+	toggleButton(Button4)
+	if active.Button4 then
+		Island4 = getClosestIsland()
+	end
+	task.spawn(function()
+		while active.Button4 do
+			if not Island4 then
+				Island4 = getClosestIsland()
+			end
+			local vending = getClosestVending(Island4,"vendingMachine1")
 			if vending then
 				local bal = vending.CoinBalance.Value
 				if bal < 4500000000 then
