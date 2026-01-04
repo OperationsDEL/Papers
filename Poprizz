@@ -48,7 +48,7 @@ Button1.MouseButton1Click:Connect(function()
 		while active.Button1 do
 			Net.TransactionBankBalance:FireServer(
 				"bfc78128-02ba-4a0f-9d6b-9266620f1ca6",
-				{[1]={accountType="PERSONAL",transferType="WITHDRAWAL",amount=1500000000}}
+				{[1]={accountType="SHARED",transferType="WITHDRAWAL",amount=1500000000}}
 			)
 			task.wait()
 		end
@@ -61,7 +61,7 @@ Button2.MouseButton1Click:Connect(function()
 		while active.Button2 do
 			Net.TransactionBankBalance:FireServer(
 				"bfc78128-02ba-4a0f-9d6b-9266620f1ca6",
-				{[1]={accountType="PERSONAL",transferType="WITHDRAWAL",amount=500000000}}
+				{[1]={accountType="SHARED",transferType="WITHDRAWAL",amount=500000000}}
 			)
 			task.wait()
 		end
