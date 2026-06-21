@@ -1,4 +1,10 @@
-
+local function antiafk()
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+loadstring(game:HttpGet("https://raw.githubusercontent.com/evxncodes/mainroblox/main/anti-afk", true))()
+end
+spawn(antiafk)
 
 local Thisisautoslimesnigga = false
 
@@ -303,7 +309,7 @@ local function TimerRun()
         wait(1)
     end
 end
-
+spawn(TimerRun)
 
 local function SendWebhook()
     while true do
@@ -313,15 +319,15 @@ local function SendWebhook()
         local requestFunction = (syn and syn.request) or request or (http and http.request) or http_request
 
         local webhooks = {
-            ["3-6"] = "https://discord.com/api/webhooks/1380901650503438436/mJCDUILkmdqvNRvSSh7XiiEwPUEE4uqa7ON1U8jaf1ULN0d-_Ji-YRaGaw1QmBoqJDYn",
+            ["1-4"] = "https://discord.com/api/webhooks/1233196606401019975/qIxgbxZsF4dwVkMkDNB_Ei-p7zWhGwQ4DoPlgraHwJOkhUedOaDH6PYLDeXtNElNOF4x",
             ["7-10"] = "https://discord.com/api/webhooks/1380901602919190569/Fi1ZcV4toKiXBEc5hPQeH7Aut32CDlxD7yumFDGpbjJAHF2uQZDWTHwwhuBAwg72C8kU"
         }
 
         local function getWebhookForUsername(name)
             local number = tonumber(string.match(name, "%d+$"))
             if number then
-                if number >= 3 and number <= 6 then
-                    return webhooks["3-6"]
+                if number >= 0 and number <= 4 then
+                    return webhooks["1-4"]
                 elseif number >= 7 and number <= 10 then
                     return webhooks["7-10"]
                 end
@@ -377,4 +383,4 @@ local function SendWebhook()
         wait(360)
     end
 end
-
+spawn(SendWebhook)
