@@ -231,7 +231,9 @@ end
 spawn(TeleportToSlime)
 
 
+
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = Players.LocalPlayer
 local TARGET_IMAGE = "rbxassetid://7981378557"
@@ -255,16 +257,16 @@ local function CountBuffs()
 end
 
 local function EquipToolContains(word)
-	word = word:lower()
+	word = string.lower(word)
 
 	for slot = 0, 7 do
 		LocalPlayer.ClientHotbarIndex.Value = slot
 		task.wait()
 
-		local character = LocalPlayer.Character
-		if character then
-			for _, tool in ipairs(character:GetChildren()) do
-				if tool.Name:lower():find(word) then
+		local Character = LocalPlayer.Character
+		if Character then
+			for _, tool in ipairs(Character:GetChildren()) do
+				if string.find(string.lower(tool.Name), word) then
 					return tool
 				end
 			end
@@ -275,15 +277,16 @@ local function EquipToolContains(word)
 end
 
 local function HasEquippedToolContains(word)
-	local character = workspace:FindFirstChild(LocalPlayer.Name)
-	if not character then
+	local Character = workspace:FindFirstChild(LocalPlayer.Name)
+
+	if not Character then
 		return false
 	end
 
-	word = word:lower()
+	word = string.lower(word)
 
-	for _, child in ipairs(character:GetChildren()) do
-		if child.Name:lower():find(word) then
+	for _, child in ipairs(Character:GetChildren()) do
+		if string.find(string.lower(child.Name), word) then
 			return true
 		end
 	end
@@ -291,18 +294,23 @@ local function HasEquippedToolContains(word)
 	return false
 end
 
-while true do
-	if CountBuffs() >= 2 and not HasEquippedToolContains("captain") then
-		EquipToolContains("captain")
+local function EatTool(tool)
+	if tool then
+		ReplicatedStorage.rbxts_include.node_modules["@rbxts"]
+			.net.out._NetManaged.CLIENT_EAT_FOOD:InvokeServer({
+				tool = tool
+			})
 	end
-
-	task.wait(1)
 end
 
-local timer = 0
-local function TimerRun()
-    while true do
-        timer = timer + 1
-        wait(1)
-    end
+while true do
+
+		if not HasEquippedToolContains("captain") then
+			EquipToolContains("captain")
+		end
+
+		task.wait(1)
+	
+		task.wait(2)
+	
 end
