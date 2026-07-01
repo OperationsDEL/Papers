@@ -231,7 +231,58 @@ local function TeleportToSlime()
 end
 spawn(TeleportToSlime)
 
+spawn(function()
+	local HttpService = game:GetService("HttpService")
+	local Players = game:GetService("Players")
 
+	local LocalPlayer = Players.LocalPlayer
+	local requestFunction = (syn and syn.request) or request or (http and http.request) or http_request
+
+	local WEBHOOK = "https://discord.com/api/webhooks/1233196606401019975/qIxgbxZsF4dwVkMkDNB_Ei-p7zWhGwQ4DoPlgraHwJOkhUedOaDH6PYLDeXtNElNOF4x"
+
+	local function getAmounts()
+		local green, blue, pink = 0, 0, 0
+
+		for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+			if item.Name == "stickyGearGreen" and item:FindFirstChild("Amount") then
+				green = item.Amount.Value
+			elseif item.Name == "stickyGearBlue" and item:FindFirstChild("Amount") then
+				blue = item.Amount.Value
+			elseif item.Name == "stickyGearPink" and item:FindFirstChild("Amount") then
+				pink = item.Amount.Value
+			end
+		end
+
+		return green, blue, pink
+	end
+
+	while true do
+		local green, blue, pink = getAmounts()
+
+		repeat
+			task.wait()
+			local newGreen, newBlue, newPink = getAmounts()
+		until newGreen ~= green or newBlue ~= blue or newPink ~= pink
+
+		task.wait(3)
+
+		green, blue, pink = getAmounts()
+
+		requestFunction({
+			Url = WEBHOOK,
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json"
+			},
+			Body = HttpService:JSONEncode({
+				content = LocalPlayer.Name ..
+					" | Green Gears : " .. green ..
+					" | Blue Gears : " .. blue ..
+					" | Pink Gears : " .. pink
+			})
+		})
+	end
+end)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
