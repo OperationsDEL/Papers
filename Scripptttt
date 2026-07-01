@@ -286,8 +286,8 @@ while true do
 	local buffCount = CountBuffs()
 
 	if buffCount >= 1 then
-		if not HasEquippedToolContains("captain") then
-			EquipToolContains("captain")
+		if not HasEquippedToolContains("dao") then
+			EquipToolContains("dao")
 		end
 
 		task.wait(1)
