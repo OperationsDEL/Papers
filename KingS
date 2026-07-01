@@ -1,3 +1,4 @@
+wait(30)
 local Thisisautoslimesnigga = false
 
 
@@ -52,7 +53,7 @@ local function GetClosestSlime()
     for _, child in ipairs(workspace.WildernessIsland.Entities:GetChildren()) do
         local name = child.Name:lower()
 
-        if name:find("slime") and child:FindFirstChild("HumanoidRootPart") then
+        if name:find("tikitikii") and child:FindFirstChild("HumanoidRootPart") then
             child.HumanoidRootPart.Size = Vector3.new(10, 25, 10)
             local dist = (humanoidRootPart.Position - child.HumanoidRootPart.Position).Magnitude
             if dist < shortestDist then
