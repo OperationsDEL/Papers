@@ -577,7 +577,11 @@ local function EatTool(tool)
 	end
 end
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 while true do
+    local name = LocalPlayer.Name
 if name == "spartslime1" or name == "spartslime2" or name == "spartslime3" or name == "spartslime4" then
         if not HasEquippedToolContains("captain") then
             EquipToolContains("captain")
