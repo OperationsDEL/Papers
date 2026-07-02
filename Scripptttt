@@ -283,104 +283,10 @@ local function EatTool(tool)
 end
 
 while true do
-	local buffCount = CountBuffs()
-
-	if buffCount >= 1 then
-		if not HasEquippedToolContains("dao") then
+if not HasEquippedToolContains("dao") then
 			EquipToolContains("dao")
 		end
 
-		task.wait(1)
-	else
-		local sushiTool = EquipToolContains("sushi")
-
-		if sushiTool then
-			EatTool(sushiTool)
-		end
-
-		task.wait(2)
-	end
+wait(1)
 end
 
-local timer = 0
-local function TimerRun()
-    while true do
-        timer = timer + 1
-        wait(1)
-    end
-end
-spawn(TimerRun)
-
-local function SendWebhook()
-    while true do
-        local HttpService = game:GetService("HttpService")
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-        local requestFunction = (syn and syn.request) or request or (http and http.request) or http_request
-
-        local webhooks = {
-            ["1-4"] = "https://discord.com/api/webhooks/1233196606401019975/qIxgbxZsF4dwVkMkDNB_Ei-p7zWhGwQ4DoPlgraHwJOkhUedOaDH6PYLDeXtNElNOF4x",
-            ["7-10"] = "https://discord.com/api/webhooks/1380901602919190569/Fi1ZcV4toKiXBEc5hPQeH7Aut32CDlxD7yumFDGpbjJAHF2uQZDWTHwwhuBAwg72C8kU"
-        }
-
-        local function getWebhookForUsername(name)
-            local number = tonumber(string.match(name, "%d+$"))
-            if number then
-                if number >= 0 and number <= 4 then
-                    return webhooks["1-4"]
-                elseif number >= 7 and number <= 10 then
-                    return webhooks["7-10"]
-                end
-            end
-            return nil
-        end
-
-        local webhookUrl = getWebhookForUsername(LocalPlayer.Name)
-        if not webhookUrl then return end
-
-        local green, blue, pink = 0, 0, 0
-        local pancake, dragonroll, shieldantler, hammerantler = 0, 0, 0, 0
-
-        for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-            if item.Name == "stickyGearGreen" and item:FindFirstChild("Amount") then
-                green = item.Amount.Value
-            elseif item.Name == "stickyGearBlue" and item:FindFirstChild("Amount") then
-                blue = item.Amount.Value
-            elseif item.Name == "stickyGearPink" and item:FindFirstChild("Amount") then
-                pink = item.Amount.Value
-            elseif item.Name == "pancakeFhanhorn" and item:FindFirstChild("Amount") then
-                pancake = item.Amount.Value
-            elseif item.Name == "sushiDragonRoll" and item:FindFirstChild("Amount") then
-                dragonroll = item.Amount.Value
-            elseif item.Name == "shieldAntler" and item:FindFirstChild("Amount") then
-                shieldantler = item.Amount.Value
-            elseif item.Name == "antlerHammer" and item:FindFirstChild("Amount") then
-                hammerantler = item.Amount.Value
-            end
-        end
-
-        local data = {
-            ["content"] = LocalPlayer.Name .. " DATA :\n" ..
-                "Sticky Green Gears : " .. green .. "\n" ..
-                "Sticky Blue Gears : " .. blue .. "\n" ..
-                "Sticky Pink Gears : " .. pink .. "\n" ..
-                "Pancakes : " .. pancake .. "\n" ..
-                "Dragon Roll : " .. dragonroll .. "\n" ..
-                "Shield Antler : " .. shieldantler .. "\n" ..
-                "Hammer Antler : " .. hammerantler .. "\n" ..
-                "Server Active : " .. (timer or "N/A")
-        }
-
-        requestFunction({
-            Url = webhookUrl,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(data)
-        })
-
-        wait(360)
-    end
-end
-spawn(SendWebhook)
