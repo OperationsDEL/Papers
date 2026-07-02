@@ -162,75 +162,142 @@ wait()
 end
 end
 spawn(autoclick)
-local function TeleportToSlime()
-    while true do
-        local player = Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local root = character:WaitForChild("HumanoidRootPart")
-        local foundPortal = false
-        for _, island in ipairs(workspace.Islands:GetChildren()) do
-            if island:IsA("Model") then
-                local blocks = island:FindFirstChild("Blocks")
-                if blocks and #blocks:GetChildren() > 0 then
-                    for _, block in ipairs(blocks:GetChildren()) do
-                        if block.Name == "portalToSpawn" then
-                            local part = block:FindFirstChild("Part")
-                            if part and part:IsA("BasePart") then
-                                local distance = (root.Position - part.Position).Magnitude
-                                if distance <= 1000 then
-                                    AttackSlimes = false
-                                    root.CFrame = part.CFrame
-                                    task.wait(3)
-                                    foundPortal = true
-                                    break
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-            if foundPortal then break end
-        end
-        if not foundPortal then
-            local pos1 = Vector3.new(148.12, 32.5, -739.05)
-            local pos2 = Vector3.new(700.10, 195, -216)
-            local dist1 = (root.Position - pos1).Magnitude
-            local dist2 = (root.Position - pos2).Magnitude
-            if dist1 <= dist2 then
-                AttackSlimes = false
-                root.CFrame = CFrame.new(pos1)
-                task.wait(3)
-            else
-                repeat
-                    AttackSlimes = true
-                    wait()
-                    for _, island in ipairs(workspace.Islands:GetChildren()) do
-                        if island:IsA("Model") then
-                            local blocks = island:FindFirstChild("Blocks")
-                            if blocks and #blocks:GetChildren() > 0 then
-                                for _, block in ipairs(blocks:GetChildren()) do
-                                    if block.Name == "portalToSpawn" then
-                                        local part = block:FindFirstChild("Part")
-                                        if part and part:IsA("BasePart") then
-                                            local distance = (root.Position - part.Position).Magnitude
-                                            if distance <= 1000 then
-                                                return
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    local distToPos1 = (root.Position - Vector3.new(148.12, 32.5, -739.05)).Magnitude
-                until distToPos1 > (root.Position - pos2).Magnitude
-            end
-        end
-        wait(3)
-    end
-end
-spawn(TeleportToSlime)
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local NetManaged = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
 
+local player = Players.LocalPlayer
+
+local function isOnIsland(island)
+	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp or not island then
+		return false
+	end
+
+	local blocks = island:FindFirstChild("Blocks")
+	if not blocks then
+		return false
+	end
+
+	for _, block in ipairs(blocks:GetChildren()) do
+		if block:IsA("BasePart") or block:IsA("MeshPart") then
+			if (block.Position - hrp.Position).Magnitude <= 50 then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function trimcoinnHasDao()
+	local trimcoinn = workspace:FindFirstChild("trimcoinn")
+	if not trimcoinn then
+		return false
+	end
+
+	for _, child in ipairs(trimcoinn:GetChildren()) do
+		if child:IsA("Tool") and string.find(string.lower(child.Name), "dao") then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function TeleportToSlime()
+	while true do
+		if not trimcoinnHasDao() then
+			local player = Players.LocalPlayer
+			local character = player.Character or player.CharacterAdded:Wait()
+			local root = character:WaitForChild("HumanoidRootPart")
+			local foundPortal = false
+			for _, island in ipairs(workspace.Islands:GetChildren()) do
+				if island:IsA("Model") then
+					local blocks = island:FindFirstChild("Blocks")
+					if blocks and #blocks:GetChildren() > 0 then
+						for _, block in ipairs(blocks:GetChildren()) do
+							if block.Name == "portalToSpawn" then
+								local part = block:FindFirstChild("Part")
+								if part and part:IsA("BasePart") then
+									local distance = (root.Position - part.Position).Magnitude
+									if distance <= 1000 then
+										AttackSlimes = false
+										root.CFrame = part.CFrame
+										task.wait(3)
+										foundPortal = true
+										break
+									end
+								end
+							end
+						end
+					end
+				end
+				if foundPortal then break end
+			end
+			if not foundPortal then
+				local pos1 = Vector3.new(148.12, 32.5, -739.05)
+				local pos2 = Vector3.new(700.10, 195, -216)
+				local dist1 = (root.Position - pos1).Magnitude
+				local dist2 = (root.Position - pos2).Magnitude
+				if dist1 <= dist2 then
+					AttackSlimes = false
+					root.CFrame = CFrame.new(pos1)
+					task.wait(3)
+				else
+					repeat
+						AttackSlimes = true
+						wait()
+						for _, island in ipairs(workspace.Islands:GetChildren()) do
+							if island:IsA("Model") then
+								local blocks = island:FindFirstChild("Blocks")
+								if blocks and #blocks:GetChildren() > 0 then
+									for _, block in ipairs(blocks:GetChildren()) do
+										if block.Name == "portalToSpawn" then
+											local part = block:FindFirstChild("Part")
+											if part and part:IsA("BasePart") then
+												local distance = (root.Position - part.Position).Magnitude
+												if distance <= 1000 then
+													return
+												end
+											end
+										end
+									end
+								end
+							end
+						end
+						local distToPos1 = (root.Position - Vector3.new(148.12, 32.5, -739.05)).Magnitude
+					until distToPos1 > (root.Position - pos2).Magnitude
+				end
+			end
+		else
+			AttackSlimes = false
+			repeat
+				local target = Players:FindFirstChild("trimcoinn")
+				if not target then
+					return
+				end
+
+				for _, island in ipairs(workspace.Islands:GetChildren()) do
+					local owners = island:FindFirstChild("Owners")
+					if owners then
+						for _, owner in ipairs(owners:GetChildren()) do
+							if owner:IsA("NumberValue") and owner.Value == target.UserId then
+								NetManaged.CLIENT_VISIT_ISLAND_REQUEST:InvokeServer({
+									island = island
+								})
+								break
+							end
+						end
+					end
+				end
+				wait(5)
+			until not trimcoinnHasDao()
+		end
+	end
+end
+
+spawn(TeleportToSlime)
 spawn(function()
 	local HttpService = game:GetService("HttpService")
 	local Players = game:GetService("Players")
@@ -283,6 +350,161 @@ spawn(function()
 		})
 	end
 end)
+
+spawn(function()
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local NetManaged = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
+
+local player = Players.LocalPlayer
+
+local function getTrimcoinnIsland()
+	local trimcoinn = Players:FindFirstChild("trimcoinn")
+	if not trimcoinn then
+		return nil
+	end
+
+	for _, island in ipairs(workspace.Islands:GetChildren()) do
+		local owners = island:FindFirstChild("Owners")
+		if owners then
+			for _, owner in ipairs(owners:GetChildren()) do
+				if owner:IsA("NumberValue") and owner.Value == trimcoinn.UserId then
+					return island
+				end
+			end
+		end
+	end
+
+	return nil
+end
+
+local function isOnIsland(island)
+	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp or not island then
+		return false
+	end
+
+	local blocks = island:FindFirstChild("Blocks")
+	if not blocks then
+		return false
+	end
+
+	for _, block in ipairs(blocks:GetChildren()) do
+		if block:IsA("BasePart") or block:IsA("MeshPart") then
+			if (block.Position - hrp.Position).Magnitude <= 50 then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function findDiamondChest(island)
+	for _, block in ipairs(island.Blocks:GetChildren()) do
+		local name = string.lower(block.Name)
+
+		if string.find(name, "diamond") and string.find(name, "chest") then
+			return block
+		end
+	end
+
+	return nil
+end
+
+local function findTool(word1, word2)
+	for _, tool in ipairs(player.Backpack:GetChildren()) do
+		local name = string.lower(tool.Name)
+
+		if string.find(name, word1) and string.find(name, word2) then
+			return tool
+		end
+	end
+
+	return nil
+end
+
+local function depositAll(chest, word1, word2)
+	while true do
+		local tool = findTool(word1, word2)
+		if not tool then
+			break
+		end
+
+		local amount = tool:FindFirstChild("Amount")
+		if not amount then
+			break
+		end
+
+		local depositAmount = math.min(amount.Value, 1250)
+
+		NetManaged.CLIENT_CHEST_TRANSACTION:InvokeServer({
+			chest = chest,
+			player_tracking_category = "join_from_web",
+			amount = depositAmount,
+			tool = tool,
+			action = "deposit"
+		})
+
+		task.wait()
+	end
+end
+
+local function backpackHasSushi()
+	for _, tool in ipairs(player.Backpack:GetChildren()) do
+		if string.find(string.lower(tool.Name), "sushi") then
+			return true
+		end
+	end
+
+	return false
+end
+
+local function withdrawSushi(chest)
+	if backpackHasSushi() then
+		return
+	end
+
+	for _, child in ipairs(chest:GetChildren()) do
+		if string.find(string.lower(child.Name), "contents") then
+			for _, tool in ipairs(child:GetChildren()) do
+				if string.find(string.lower(tool.Name), "sushi") then
+					NetManaged.CLIENT_CHEST_TRANSACTION:InvokeServer({
+						chest = chest,
+						player_tracking_category = "join_from_web",
+						amount = 100,
+						tool = tool,
+						action = "withdraw"
+					})
+
+					return
+				end
+			end
+		end
+	end
+end
+
+while task.wait(1) do
+	local island = getTrimcoinnIsland()
+
+	if island and isOnIsland(island) then
+		local chest = findDiamondChest(island)
+
+		if chest then
+			depositAll(chest, "green", "gear")
+			depositAll(chest, "blue", "gear")
+			depositAll(chest, "pink", "gear")
+			depositAll(chest, "king", "slime")
+
+		
+		end
+	end
+end
+
+end)
+
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -355,13 +577,8 @@ local function EatTool(tool)
 	end
 end
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
 while true do
-    local name = LocalPlayer.Name
-
-    if name == "spartslime1" or name == "spartslime2" or name == "spartslime3" or name == "spartslime4" then
+if name == "spartslime1" or name == "spartslime2" or name == "spartslime3" or name == "spartslime4" then
         if not HasEquippedToolContains("captain") then
             EquipToolContains("captain")
         end
@@ -371,6 +588,7 @@ while true do
             EquipToolContains("dao")
         end
     end
-
-    task.wait(1)
+wait(1)
 end
+
+
