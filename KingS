@@ -1,4 +1,31 @@
 wait(30)
+spawn(function()
+    while true do
+        local ws = workspace
+
+        local spawnPrefabs = ws:FindFirstChild("spawnPrefabs")
+        if spawnPrefabs then
+            local wildIslands = spawnPrefabs:FindFirstChild("WildIslands")
+            if wildIslands then
+                local hub = wildIslands:FindFirstChild("hub")
+                if hub then
+                    local building = hub:FindFirstChild("Building")
+                    if building then
+                        building:Destroy()
+                    end
+
+                    local slime = wildIslands:FindFirstChild("slime")
+                    if slime then
+                        slime:Destroy()
+                    end
+                end
+            end
+        end
+
+        task.wait(5)
+    end
+end)
+
 local Thisisautoslimesnigga = false
 
 
