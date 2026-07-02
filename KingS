@@ -355,14 +355,22 @@ local function EatTool(tool)
 	end
 end
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 while true do
+    local name = LocalPlayer.Name
 
-		if not HasEquippedToolContains("captain") then
-			EquipToolContains("captain")
-		end
+    if name == "spartslime1" or name == "spartslime2" or name == "spartslime3" or name == "spartslime4" then
+        if not HasEquippedToolContains("captain") then
+            EquipToolContains("captain")
+        end
 
-		task.wait(1)
-	
-		task.wait(2)
-	
+    elseif name == "spartslime5" or name == "spartslime6" or name == "spartslime7" or name == "spartslime8" then
+        if not HasEquippedToolContains("dao") then
+            EquipToolContains("dao")
+        end
+    end
+
+    task.wait(1)
 end
