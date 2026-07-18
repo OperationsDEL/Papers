@@ -523,7 +523,7 @@ while task.wait(1) do
 			depositAll(chest, "green", "gear")
 			depositAll(chest, "blue", "gear")
 			depositAll(chest, "pink", "gear")
-			depositAll(chest, "king", "slime")
+			
 
 		
 		end
@@ -537,89 +537,111 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local LocalPlayer = Players.LocalPlayer
-local TARGET_IMAGE = "rbxassetid://7981378557"
+local NetManaged = ReplicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged
 
-local function CountBuffs()
-	local count = 0
+local function IsActive(imageId)
+    local potionList = LocalPlayer.PlayerGui:WaitForChild("PotionList")
 
-	local potionList = LocalPlayer.PlayerGui:WaitForChild("PotionList")
-
-	for _, child in ipairs(potionList:GetChildren()) do
-		if child:IsA("Frame") then
-			for _, obj in ipairs(child:GetDescendants()) do
-				if obj:IsA("ImageLabel") and obj.Image == TARGET_IMAGE then
-					count += 1
-				end
-			end
-		end
-	end
-
-	return count
-end
-
-local function EquipToolContains(word)
-	word = string.lower(word)
-
-	for slot = 0, 7 do
-		LocalPlayer.ClientHotbarIndex.Value = slot
-		task.wait()
-
-		local Character = LocalPlayer.Character
-		if Character then
-			for _, tool in ipairs(Character:GetChildren()) do
-				if string.find(string.lower(tool.Name), word) then
-					return tool
-				end
-			end
-		end
-	end
-
-	return nil
-end
-
-local function HasEquippedToolContains(word)
-	local Character = workspace:FindFirstChild(LocalPlayer.Name)
-
-	if not Character then
-		return false
-	end
-
-	word = string.lower(word)
-
-	for _, child in ipairs(Character:GetChildren()) do
-		if string.find(string.lower(child.Name), word) then
-			return true
-		end
-	end
-
-	return false
-end
-
-local function EatTool(tool)
-	if tool then
-		ReplicatedStorage.rbxts_include.node_modules["@rbxts"]
-			.net.out._NetManaged.CLIENT_EAT_FOOD:InvokeServer({
-				tool = tool
-			})
-	end
-end
-
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-while true do
-    local name = LocalPlayer.Name
-if name == "spartslime1" or name == "spartslime2" or name == "spartslime3" or name == "spartslime4" then
-        if not HasEquippedToolContains("captain") then
-            EquipToolContains("captain")
-        end
-
-    elseif name == "spartslime5" or name == "spartslime6" or name == "spartslime7" or name == "spartslime8" then
-        if not HasEquippedToolContains("dao") then
-            EquipToolContains("dao")
+    for _, child in ipairs(potionList:GetChildren()) do
+        if child:IsA("Frame") then
+            for _, subChild in ipairs(child:GetChildren()) do
+                if subChild:IsA("Frame") then
+                    for _, last in ipairs(subChild:GetChildren()) do
+                        if last:IsA("ImageLabel") and last.Image == imageId then
+                            return true
+                        end
+                    end
+                end
+            end
         end
     end
-wait(1)
+
+    return false
 end
 
+local function FindCombatTool(container)
+    for _, tool in ipairs(container:GetChildren()) do
+        if tool:IsA("Tool") then
+            local name = tool.Name:lower()
+            if name:find("dao") or name:find("captain") then
+                return tool
+            end
+        end
+    end
+end
 
+local function FindSushiTool()
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            if tool.Name:lower():find("sushi") then
+                return tool
+            end
+        end
+    end
+end
+
+local function EquipTool(toolName)
+    for i = 0, 7 do
+        if LocalPlayer.Character:FindFirstChild(toolName) then
+            break
+        end
+        LocalPlayer.ClientHotbarIndex.Value = i
+        task.wait()
+    end
+end
+
+local function EnsureCombatTool()
+    local character = workspace:FindFirstChild(LocalPlayer.Name)
+
+    if character then
+        if FindCombatTool(character) then
+            return
+        end
+    end
+
+    local tool = FindCombatTool(LocalPlayer.Backpack)
+    if tool then
+        repeat
+            EquipTool(tool.Name)
+            task.wait()
+        until character and FindCombatTool(character)
+    end
+end
+
+local function EatDragonSushi()
+    while not IsActive("rbxassetid://7981378557") do
+        local sushi = FindSushiTool()
+
+        if not sushi then
+            break
+        end
+
+        repeat
+            EquipTool(sushi.Name)
+            task.wait()
+        until LocalPlayer.Character:FindFirstChild(sushi.Name)
+
+        task.wait(1)
+
+        local character = workspace:FindFirstChild(LocalPlayer.Name)
+        if character then
+            NetManaged.CLIENT_EAT_FOOD:InvokeServer({
+                tool = character:FindFirstChild(sushi.Name)
+            })
+        end
+
+        task.wait(1)
+    end
+end
+
+spawn(function()
+    while true do
+        if not IsActive("rbxassetid://7981378557") then
+            EatDragonSushi()
+        end
+
+        EnsureCombatTool()
+
+        task.wait(1)
+    end
+end)
