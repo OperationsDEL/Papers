@@ -481,7 +481,7 @@ end
 
 local function backpackHasSushi()
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
-		if string.find(string.lower(tool.Name), "sushi") then
+		if tool:IsA("Tool") and string.find(string.lower(tool.Name), "sushi") then
 			return true
 		end
 	end
@@ -498,13 +498,17 @@ local function withdrawSushi(chest)
 		if string.find(string.lower(child.Name), "contents") then
 			for _, tool in ipairs(child:GetChildren()) do
 				if string.find(string.lower(tool.Name), "sushi") then
-					NetManaged.CLIENT_CHEST_TRANSACTION:InvokeServer({
-						chest = chest,
-						player_tracking_category = "join_from_web",
-						amount = 100,
-						tool = tool,
-						action = "withdraw"
-					})
+					repeat
+						NetManaged.CLIENT_CHEST_TRANSACTION:InvokeServer({
+							chest = chest,
+							player_tracking_category = "join_from_web",
+							amount = 100,
+							tool = tool,
+							action = "withdraw"
+						})
+
+						task.wait(2)
+					until backpackHasSushi()
 
 					return
 				end
@@ -523,9 +527,7 @@ while task.wait(1) do
 			depositAll(chest, "green", "gear")
 			depositAll(chest, "blue", "gear")
 			depositAll(chest, "pink", "gear")
-			
-
-		
+			withdrawSushi(chest)
 		end
 	end
 end
